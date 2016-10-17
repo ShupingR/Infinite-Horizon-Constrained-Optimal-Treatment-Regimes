@@ -8,7 +8,7 @@
 
 
 rng(222,'twister');
-
+%% data generation
 % params set
 a1 = 0.1;
 a2 = 0.15;
@@ -61,3 +61,6 @@ for i = 1:N
     hold on
     plot(1:6, D(i,:), 'color', 'r');
 end
+
+
+%% Q-learning replication
