@@ -486,3 +486,5 @@ _site/
 *.jl.*.cov
 *.jl.mem
 deps/deps.jl
+
+*.m~

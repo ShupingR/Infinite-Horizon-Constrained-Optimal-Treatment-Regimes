@@ -1,2 +1,5 @@
 
-% reward function 
+%---------------------
+% reward function based on reference
+%----------------------
+
