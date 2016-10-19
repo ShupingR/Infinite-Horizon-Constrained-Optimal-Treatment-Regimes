@@ -24,16 +24,16 @@ d2 = 0.5;
 % N = 1000 patients
 N = 50;
 
-% t = 0, 1,..., T-1, T = 6 => t = 1, 2, ..., 6 months
-T = 6;
+% t = 0, 1,..., T-1, T = 6 => t = 1, 2, ..., 6, 7 months
+T = 7;
 
 % Dt, action variable, the chemotherapy agent dose level
 % Wt, state variable, measures the negative part of wellness (toxicity)
 % Mt, state variable, denotes the tumor size at time t
 % Create Matrix of W M D
-W = nan(N, T+1);
-M = nan(N, T+1);
-D = nan(N, T);
+W = nan(N, T);
+M = nan(N, T);
+D = nan(N, T-1);
 
 % The initial values W0 and M0 for each patient are generated iid
 % from uniform (0, 2). D0 iid ~ uniform (0.5, 1), Dt iid ~ uniform(0,1)
@@ -43,9 +43,9 @@ D = nan(N, T);
 W(:,1) = 0 + (2 - 0) .* rand(N,1);
 M(:,1) = 0 + (2 - 0) .* rand(N,1); 
 D(:,1) = 0.5 + (1 - 0.5) .* rand(N,1);
-D(:,2:T) = 1 + (1 - 0) .* rand(N,T-1);
+D(:,2:T-1) = 1 + (1 - 0) .* rand(N,T-2);
 
-for t = 1:T
+for t = 1:T-1
     M_t1 = [M(:,t), M(:,1)];
     W_t1 = [W(:,t), W(:,1)];
     dW_t = a1 .*  max(M_t1, [], 2) + b1 .* (D(:,t) - d1);
@@ -54,37 +54,50 @@ for t = 1:T
     M(:, t+1) = M(:, t) + dM_t;
 end
 
-% for i = 1:N
-%     plot(1:7, M(i,:), 'color', 'g');
-%     hold on
-%     plot(1:7, W(i,:), 'color', 'b');
-% end
+for i = 1:N
+    plot(1:7, M(i,:), 'color', 'g');
+    hold on
+    plot(1:7, W(i,:), 'color', 'b');
+end
 
-% figure
-% for i = 1:N
-%     hold on
-%     plot(1:6, D(i,:), 'color', 'r');
-% end
+figure
+for i = 1:N
+    hold on
+    plot(1:6, D(i,:), 'color', 'r');
+end
 
 
 %% patient survival status
 % create a matrix for p
-p_mat = nan(N, T+1); % at the end of each interval/action t=1, 2,3,4,5,6,7
+p_mat = nan(N, T); % at the end of each interval/action t=1,2,3,4,5,6,7
 % p(1) = 0;
 p_mat(:,1) = 0;
 % parms in log hazard modeling
-mu0 = -9;
+mu0 = -8.5;
 mu1 = 1;
 mu2 = 1;
 % create a matrix F for death indicator
-F = nan(N, T+1);
+F = nan(N, T);
 % assume no one is dead at the beginning point t =1
 F(:, 1) = 0;
-for t = 2:T+1
+for t = 2:T
     p_mat(:, t) = 1 - exp(-exp(mu0 + mu1 .* W(: ,t) + mu2 .* M(:,t)));
     F(:, t) = (rand(N, 1) < p_mat(:, t) | F(: , t-1) ==1);
 end
-% F(:, 2:T+1) = (rand(N, T) < p_mat(:, 2:T+1)); 
 
+%% calculate the rewards
+R_1 = nan(N, T-1);
+R_2 = nan(N, T-1);
+R_3 = nan(N, T-1);
+R = nan(N, T-1);
+for t = 1:T-1
+    R_1(:, t) = - 60 .* (F(:, t+1) == 1);
+    R_2(:, t) =   5 .* ( W(:, t+1) - W(:,t) <= -0.5) ...
+                - 5 .* ( W(:, t+1) - W(:,t) > -0.5);
+    R_3(:, t) =  15 .* ( M(:, t+1) == 0 ) ...
+                + 5 .* ((M(:, t+1) - M(:,t) <= -0.5) & (M(:, t+1) ~= 0))...
+                - 5 .* (M(:, t+1) - M(:,t) > 0.5);
+end
 
 %% Q-learning replication
+R = R_1 + R_2 + R_3;
