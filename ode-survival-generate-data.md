@@ -17,3 +17,6 @@ $$ = exp[ - exp\{ \mu_0 + \mu_1 W_t + \mu_2 M_t\} ]$$
 
 The random event of death = 1, $\text{Bernoulli}(p) $
 $$p = 1 - \triangle F(t) = 1 -exp[ - exp\{ \mu_0 + \mu_1 W_t + \mu_2 M_t\} ]$$
+
+
+A constrained optimal regime in infinite-sta

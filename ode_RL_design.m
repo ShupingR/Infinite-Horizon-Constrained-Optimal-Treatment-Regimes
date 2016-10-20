@@ -33,7 +33,6 @@ T = 7;
 % Create Matrix of W M D
 W = nan(N, T);
 M = nan(N, T);
-D = nan(N, T-1);
 
 % The initial values W0 and M0 for each patient are generated iid
 % from uniform (0, 2). D0 iid ~ uniform (0.5, 1), Dt iid ~ uniform(0,1)
@@ -44,7 +43,8 @@ W(:,1) = 0 + (2 - 0) .* rand(N,1);
 M(:,1) = 0 + (2 - 0) .* rand(N,1); 
 D(:,1) = 0.5 + (1 - 0.5) .* rand(N,1);
 D(:,2:T-1) = 1 + (1 - 0) .* rand(N,T-2);
-
+%D = randi([1,3],N, T-1);
+%D = 0.25*D;
 for t = 1:T-1
     M_t1 = [M(:,t), M(:,1)];
     W_t1 = [W(:,t), W(:,1)];
@@ -89,7 +89,6 @@ end
 R_1 = nan(N, T-1);
 R_2 = nan(N, T-1);
 R_3 = nan(N, T-1);
-R = nan(N, T-1);
 for t = 1:T-1
     R_1(:, t) = - 60 .* (F(:, t+1) == 1);
     R_2(:, t) =   5 .* ( W(:, t+1) - W(:,t) <= -0.5) ...
@@ -101,3 +100,82 @@ end
 
 %% Q-learning replication
 R = R_1 + R_2 + R_3;
+
+figure
+for i = 1:N
+    hold on
+    plot(1:6, R(i,:), 'color', 'y');
+end
+
+%%% Initialize variables
+k = 8;
+A = zeros(k, k);
+b = zeros(k, 1);
+discount = 0.8;
+mytime = cputime;
+med_m = median(reshape(M, 1, N*T));
+med_w = median(reshape(W, 1, N*T));
+
+ %%% Loop through the samples
+for t = 1:T
+    for i=1:N
+        
+        % the observation here is (s, a, r, s')
+        % s = [ M(i,t), W(i,t), F(i,t) ];
+        % a = d = D(i,t)
+        % r = R(i,t);
+        % s' = [ M(i,t+1), W(i,t+1), F(i,t+1)];
+        
+        % retrieve current state in the sample quadruplet
+        m = M(i,t);
+        w = W(i,t);
+        f = F(i,t);
+        d = D(i,t); % action: dose level
+        r = R(i,t);
+        %%% Compute the basis for the current state and action
+        %%% phi = feature(new_policy.basis, samples(i).state, samples(i).action);
+        phi = feature( m, w, d, f, med_w, med_m );
+
+        % retrieve next state in the sample quadruplet
+        nxt_m = M(i,t+1);
+        nxt_w = W(i,t+1);
+        nxt_f = F(i,t+1);
+           
+        %%% Compute the action according to the policy under evaluation
+        % and the corresponding basis at the next state 
+        nxt_d = policy(nxt_m, nxt_w, nxt_f); 
+        nxt_phi = feature(nxt_m, nxt_w, nxt_d, nxt_f, med_w, med_m);
+     
+        %%% Update the matrices A and b
+        A = A + phi * (phi - discount * nxt_phi)'; 
+        b = b + phi * r;
+    end
+end
+  
+  phi_time = cputime - mytime;
+  disp(['CPU time to form A and b : ' num2str(phi_time)]);
+  mytime = cputime;
+  
+  %%% Solve the system to find w
+  rankA = rank(A);
+  
+  rank_time = cputime - mytime;
+  disp(['CPU time to find the rank of A : ' num2str(rank_time)]);
+  mytime = cputime;
+  
+  disp(['Rank of matrix A : ' num2str(rankA)]);
+  if rankA==k
+    disp('A is a full rank matrix!!!');
+    w = A\b;
+  else
+    disp(['WARNING: A is lower rank!!! Should be ' num2str(k)]);
+    w = pinv(A)*b;
+  end
+  
+  solve_time = cputime - mytime;
+  disp(['CPU time to solve Aw=b : ' num2str(solve_time)]);
+
+  
+return
+  
+
