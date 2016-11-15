@@ -5,6 +5,7 @@
 % Stat Med. 2009 November 20; 28(26): 3294?3315. doi:10.1002/sim.3720.
 % Oct 17
 %--------------------------------------------------------------------
+clearvars;
 rng(222,'twister');
 
 %-----------------
@@ -19,338 +20,205 @@ b2 = 1.2;
 d1 = 0.5;
 d2 = 0.5;
 
-% N = 1000 patients
-N = 1000;
+%% Generate data
+N = 1000; % N = 1000 patients
+T = 7; % t = 0, 1,..., T-1, T = 6 => t = 1, 2, ..., 6, 7 months
+show = 1; %pic
+sample = data_generation(N, T, show);
 
-% t = 0, 1,..., T-1, T = 6 => t = 1, 2, ..., 6, 7 months
-T = 7;
+%% Generate grid for discritization
+%%%% order wellness and tumorsize
+M_x = 1000;
+M_y = 1000;
+grid = gen_grid(sample(1).low_wellness, sample(1).upp_wellness,...
+                sample(1).low_tumorsize, sample(1).upp_tumorsize,...
+                M_x, M_y);
 
-% Dt, action variable, the chemotherapy agent dose level
-% Wt, state variable, measures the negative part of wellness (toxicity)
-% Mt, state variable, denotes the tumor size at time t
-% Create Matrix of W M D
-W = nan(N, T);
-M = nan(N, T);
-D = nan(N, T-1);
-% The initial values W0 and M0 for each patient are generated iid
-% from uniform (0, 2). D0 iid ~ uniform (0.5, 1), Dt iid ~ uniform(0,1)
-% In general, you can generate N random numbers in the interval (a,b) 
-% with the formula r = a + (b-a).*rand(N,1).
-% t = 0
-W(:,1) = 0 + (2 - 0) .* rand(N,1);
-M(:,1) = 0 + (2 - 0) .* rand(N,1); 
-D(:,1) = 0.5 + (1 - 0.5) .* rand(N,1);
-D(:,2:T-1) = 0 + (1 - 0) .* rand(N,T-2);
-%D = randi([1,3],N, T-1);
-%D = 0.25*D;
-for t = 1:T-1
-    M_t1 = [M(:,t), M(:,1)];
-    W_t1 = [W(:,t), W(:,1)];
-    dW_t = a1 .*  max(M_t1, [], 2) + b1 .* (D(:,t) - d1);
-    dM_t = ( a2 .* max(W_t1, [], 2) - b2 .* (D(:,t) - d2) ).* ( M(:,t) > 0 );
-    W(:, t+1) = W(:, t) + dW_t;
-    M(:, t+1) = M(:, t) + dM_t;
+%% Project each sample onto the nearest grid, current state and next state
+i = 1;
+proj_sample = sample;
+for each_sample = sample
+    [ closest_index_current, closest_index_next ] = ...
+        nearest_vertx(grid, each_sample);
+    proj_sample(i).wellness = grid(closest_index_current, 1);
+    proj_sample(i).tumorsize = grid(closest_index_current, 2);
+    proj_sample(i).next_wellness = grid(closest_index_next, 1);
+    proj_sample(i).next_tumorsize = grid(closest_index_next, 2);
+    i = i + 1;
 end
+% Do not re-run above,  save the matrix
+%% policy search + policy evaluation
+K = 5;
+TK = K * 2 * 6;
+P = 5; % 5 nearest to calculate decision 
+tau0 = zeros(1, TK);
+tau0(2) = 0.5;
+tau0(4) = -0.5;
+tau0(8) = -1;
+seed = 222;
+kappa = 40;
+ns = 5;
+[ center, sigma2 ] = hyperparm( sample, TK, P, seed );
 
-for i = 1:N
-     plot(1:7, M(i,:), 'color', 'g');
-     hold on
-     plot(1:7, W(i,:), 'color', 'b');
- end
+all_proj_phi = all_feature( proj_sample, center, sigma2, TK );
+                  
+my_objective = @(tau) objective( proj_sample, all_proj_phi, center, ...
+                                 sigma2, tau, K );
+
+%my_constraint = @(tau) constraint( proj_sample, all_proj_phi, center,...
+%                                   sigma2, tau, K, kappa );
+
+options = optimset('PlotFcns', @optimplotfval);
+tauSol_fminsearch = fminsearch(my_objective, tau0, options);
+
+% opts = optimoptions(@fminsearch,'Display','iter-detailed',...
+%       'Algorithm','interior-point'); % , 'FinDiffRelStep', 1e-2);  
+
+% opts = optimoptions(@fmincon,'Display','iter-detailed',...
+%       'Algorithm','interior-point'); % , 'FinDiffRelStep', 1e-2);  
+
+% problem = createOptimProblem('fmincon', 'objective', my_objective, ...
+%          'x0', tau0,  'nonlcon', my_constraint, 'options', opts);
+
+% ms = MultiStart('StartPointsToRun', 'all', 'Display','off');
+
+% [tauSol, fval, exitflag] = run(ms, problem, ns);
+
+% obj_val = -fval;
+
+
+%%
+% remember to set seed for simulation to avoid stochastic 
+% fimsearch use nealder-mean simplex method, gradient free
+
 % 
-figure
- for i = 1:N
-     hold on
-     plot(1:6, D(i,:), 'color', 'r');
- end
+% Multiple Start ininital point
+% tau0 = [-0.5, 0.5, 0.5, -0.5 ];
+% 
+% display('Z')
+% find min Z for later check if it satisfies the constraint, aka <= kappa
+% tic;
+% objZ = @(tau) preEstPrY (tau, Z, H2, A2, H1, A1, n, 1) ;
+% optsZ = optimoptions(@fminunc,'Algorithm', 'quasi-newton', 'Display','off' , 'FinDiffRelStep', 1e-2);
+% problemZ = createOptimProblem('fminunc', 'objective', objZ, 'x0', tau0,  'options', optsZ);
+% msZ = MultiStart('StartPointsToRun', 'all', 'Display','off');
+% [tauSolZ, fvalZ, exitflagZ] = run(msZ, problemZ, ns);
+% toc;
+% 
+% display('Y')
+% find max Y for later check if its corresponding Z satisfies the constraint, aka <= kappa
+% tic;
+% objY = @(tau) preEstPrY (tau, Y, H2, A2, H1, A1, n, -1) ;
+% optsY = optimoptions(@fminunc,'Algorithm', 'quasi-newton', 'Display','off' , 'FinDiffRelStep', 1e-2);
+% problemY = createOptimProblem('fminunc', 'objective', objY, 'x0', tau0,  'options', optsY);
+% msY = MultiStart('StartPointsToRun', 'all', 'Display','off');
+% [tauSolY, fvalY, exitflagY] = run(msY, problemY, ns);
+% fvalY = -fvalY;
+% fvalZmaxY = preEstPrY (tauSolY, Z, H2, A2, H1, A1, n, 1) ;
+% toc;
 
-
-%% patient survival status
-% create a matrix for p
-p_mat = nan(N, T); % at the end of each interval/action t=1,2,3,4,5,6,7
-% p(1) = 0;
-p_mat(:,1) = 0;
-% parms in log hazard modeling
-mu0 = -8.5;
-mu1 = 1;
-mu2 = 1;
-% create a matrix F for death indicator
-F = nan(N, T);
-% assume no one is dead at the beginning point t =1
-F(:, 1) = 0;
-for t = 2:T
-    p_mat(:, t) = 1 - exp(-exp(mu0 + mu1 .* W(: ,t) + mu2 .* M(:,t)));
-    F(:, t) = (rand(N, 1) < p_mat(:, t) | F(: , t-1) ==1);
-end
-
-%% calculate the rewards
-R_neg = nan(N, T-1);
-R_pos= nan(N, T-1);
-
-for t = 1:T-1
-    R_neg(:, t) = 60 * (F(:, t+1) == 1) ...
-                  + 5 * (W(:, t+1) - W(:,t) >= -0.5);
-    R_pos(:, t) = 5 * (M(:, t+1) - M(:,t) <= -0.5) ...
-                  + 15 * (M(:, t+1) == 0);
-end
-
-
- figure
- for i = 1:N
-     hold on
-     plot(1:6, R_neg(i,:), 'color', 'y');
- end
- 
- 
- 
- figure
- for i = 1:N
-     hold on
-     plot(1:6, R_pos(i,:), 'color', 'y');
- end
-
-% dimensions of basis function vector
-k = 9;
-maxiter = 500;
-epsilon = 0.005;
-discount = 0.8;
-
-%%% Initialize policy iter 
-iter = 0;
-distance = inf;
-weights_pos = ones(k,1);
-while ( (iter < maxiter) && (distance > epsilon) )  
-    %%% Initialize variables
-    iter = iter + 1;
-    disp('*********************************************************');
-    disp( ['LSPI iter : ', num2str(iter)] );
-    
-    %%%----- Begin: LSTDq, update weights ----------------------------%%%
-    A = zeros(k, k);
-    b = zeros(k, 1);
-    
-    pre_weights_pos = weights_pos;    
-    
-    mytime = cputime;
-    mean_m = mean(reshape(M, 1, N*T));
-    mean_w = mean(reshape(W, 1, N*T));
-
-    %%% loop through the samples
-    for t = 1:T-1
-        for i=1:N
-            % the observation here is (s, a, r, s')
-            % s = [ M(i,t), W(i,t), F(i,t) ];
-            % a = d = D(i,t)
-            % r = R(i,t);
-            % s' = [ M(i,t+1), W(i,t+1), F(i,t+1)];
-            % retrieve current state in the sample quadruplet
-            m = M(i,t);
-            w = W(i,t);
-            f = F(i,t);
-            d = D(i,t); % action: dose level
-            r_pos = R_pos(i,t);
-
-            %%% Compute the basis for the current state and action
-            %%% phi = feature(new_policy.basis, samples(i).state, samples(i).action);
-            phi = feature( m, w, d, f, mean_m, mean_w,k);
-
-            % retrieve next state in the sample quadruplet
-            nxt_m = M(i,t+1);
-            nxt_w = W(i,t+1);
-            nxt_f = F(i,t+1);
-
-            %%% Compute the action according to the policy under evaluation
-            % and the corresponding basis at the next state 
-            nxt_d = policy(nxt_m, nxt_w, nxt_f, mean_m, mean_w, weights_pos, k); 
-            nxt_phi = feature(nxt_m, nxt_w, nxt_d, nxt_f, mean_m, mean_w, k);
-            
-            
-            %%% Update the matrices A and b
-            A = A + phi * (phi - discount * nxt_phi)'; 
-            b_pos = b_pos + phi * r_pos;
-
-        end
-    end
-
-    phi_time = cputime - mytime;
-    disp(['CPU time to form A and b : ' num2str(phi_time)]);
-    mytime = cputime;
-
-    %%% Solve the system to find w
-    rankA = rank(A);
-    
-    rank_time = cputime - mytime;
-    disp(['CPU time to find the rank of A : ' num2str(rank_time)]);
-    mytime = cputime;
-    
-    disp(['Rank of matrix A : ' num2str(rankA)]);
-    if rankA==k
-        disp('A is a full rank matrix!!!');
-        weights_pos = A\b_pos;
-
-    else
-        disp(['WARNING: A is lower rank!!! Should be ' num2str(k)]);
-        weights_pos = pinv(A)*b_pos;
-
-    end
-    
-    solve_time = cputime - mytime;
-    disp(['CPU time to solve Aw=b : ' num2str(solve_time)]);
-    %%%----- End: : LSTDq, update weight -------------------------------%%%
-
-    difference_pos = weights_pos - pre_weights_pos;
-    LMAXnorm = norm(difference_pos,inf);
-    L2norm = norm(difference_pos);
-    distance_pos = L2norm;
-    
-    %%% Print some information
-    disp(['Norms -> Lmax : ', num2str(LMAXnorm), ...
-          'L2 : ', num2str(L2norm)]);
-    
-end
-
-
-%%% Initialize policy iter 
-iter = 0;
-distance = inf;
-weights_neg = ones(k,1);
-while ( (iter < maxiter) && (distance > epsilon) )  
-    %%% Initialize variables
-    iter = iter + 1;
-    disp('*********************************************************');
-    disp( ['LSPI iter : ', num2str(iter)] );
-    
-    %%%----- Begin: LSTDq, update weights ----------------------------%%%
-    A = zeros(k, k);
-    b = zeros(k, 1);
-    
-    pre_weights_neg = weights_neg;    
-    
-    mytime = cputime;
-    mean_m = mean(reshape(M, 1, N*T));
-    mean_w = mean(reshape(W, 1, N*T));
-
-    %%% loop through the samples
-    for t = 1:T-1
-        for i=1:N
-            % the observation here is (s, a, r, s')
-            % s = [ M(i,t), W(i,t), F(i,t) ];
-            % a = d = D(i,t)
-            % r = R(i,t);
-            % s' = [ M(i,t+1), W(i,t+1), F(i,t+1)];
-            % retrieve current state in the sample quadruplet
-            m = M(i,t);
-            w = W(i,t);
-            f = F(i,t);
-            d = D(i,t); % action: dose level
-            r_neg = R_neg(i,t);
-
-            %%% Compute the basis for the current state and action
-            %%% phi = feature(new_policy.basis, samples(i).state, samples(i).action);
-            phi = feature( m, w, d, f, mean_m, mean_w,k);
-
-            % retrieve next state in the sample quadruplet
-            nxt_m = M(i,t+1);
-            nxt_w = W(i,t+1);
-            nxt_f = F(i,t+1);
-
-            %%% Compute the action according to the policy under evaluation
-            % and the corresponding basis at the next state 
-            nxt_d = policy(nxt_m, nxt_w, nxt_f, mean_m, mean_w, weights, k); 
-            nxt_phi = feature(nxt_m, nxt_w, nxt_d, nxt_f, mean_m, mean_w, k);
-            
-            
-            %%% Update the matrices A and b
-            A = A + phi * (phi - discount * nxt_phi)'; 
-            b_neg = b_neg + phi * r_neg;
-
-        end
-    end
-
-    phi_time = cputime - mytime;
-    disp(['CPU time to form A and b : ' num2str(phi_time)]);
-    mytime = cputime;
-
-    %%% Solve the system to find w
-    rankA = rank(A);
-    
-    rank_time = cputime - mytime;
-    disp(['CPU time to find the rank of A : ' num2str(rank_time)]);
-    mytime = cputime;
-    
-    disp(['Rank of matrix A : ' num2str(rankA)]);
-    if rankA==k
-        disp('A is a full rank matrix!!!');
-        weights_neg = A\b_neg;
-
-    else
-        disp(['WARNING: A is lower rank!!! Should be ' num2str(k)]);
-        weights_neg = pinv(A)*b_neg;
-    end
-    
-    solve_time = cputime - mytime;
-    disp(['CPU time to solve Aw=b : ' num2str(solve_time)]);
-    %%%----- End: : LSTDq, update weight -------------------------------%%%
-
-    difference_neg = weights_neg - pre_weights_neg;
-    LMAXnorm = norm(difference_neg,inf);
-    L2norm = norm(difference_neg);
-    distance_pos = L2norm;
-    
-    %%% Print some information
-    disp(['Norms -> Lmax : ', num2str(LMAXnorm), ...
-          'L2 : ', num2str(L2norm)]);
-    
-end
-
-%%% Display some info
-disp('*********************************************************');
-if (distance_neg > epsilon) 
-    disp(['LSPI finished in ' num2str(iter) ...
-          ' iters WITHOUT CONVERGENCE to a fixed point']);
-else
-    disp(['LSPI converged in ' num2str(iter) ' iters']);
-end
-
-% %%% est_q vs d plot, mean m , mean w
-% mean_m = mean(reshape(M, 1, N*T));
-% mean_w = mean(reshape(W, 1, N*T));
-% d_list = linspace(0, 1, 30);
-% qval_list = nan(1, 30);
-% f1 = 0;
-% l = 1;
-% figure
-% for dplot = d_list 
-%     qval_list(l) = qfun(mean_m, mean_w, dplot, f1, med_m, med_w, weights, k);
-%     l = l+1;
+% %%
+% display('C')
+% % Create the kappaList for the constraint
+% stdZ = std(Z);
+% kappaList = linspace (min(Z) - 0.5 * stdZ , max(Z) + 0.5 * stdZ, nk);
+% kappaListFile =  'test7_kappaList.txt';
+% dlmwrite(kappaListFile, kappaList, '-append');
+% %reach = 0;
+% %profile on
+% %write out solutions
+% %parpool(2);
+%  %tic;
+% 
+% for k = 1:nk 
+%     kappa = kappaList(k);
+%     %----------------------------------------------------------------------
+%     % output file names
+%     optTauHatFile =  strcat('test7_optTauHat_', num2str(kappa), '.txt');
+%         % estimated optimal regime indexing parameters
+%     optObjValFile =  strcat('test7_optObjVal_', num2str(kappa), '.txt');
+%         % objective function value under the solution above
+%     optConValFile =  strcat('test7_optContVal_', num2str(kappa), '.txt');
+%         % constraint function value under the solution above
+%     exitFlagFile =  strcat('test7_exitFlagHat_', num2str(kappa), '.txt');
+%         % exit flag of solving the problem above
+%     optMeanYTestFile =  strcat('test7_optMeanYTest_', num2str(kappa), '.txt');
+%         % estimated meanY under the estimated constrained opt regime
+%     optMeanZTestFile =  strcat('test7_optMeanZTest_', num2str(kappa), '.txt');
+%         % estimated meanZ under the estimated constrained opt regime
+%     %----------------------------------------------------------------------   
+%     % check if minMeanZ satisfies the constraint, aka <= kappa
+%     % if minMeanZ > kappa, problem infeasible. We skip to the next kappa
+%     if (fvalZ > kappa) 
+%         tauSol = [ NaN, NaN, NaN, NaN ]; 
+%         fval = NaN;
+%         con = NaN;
+%         exitflag = NaN;
+%         meanYtestdList(k) = NaN;
+%         meanZtestdList(k) = NaN;
+%         dlmwrite(optTauHatFile, tauSol, '-append');
+%         dlmwrite(optObjValFile, fval, '-append');
+%         dlmwrite(optConValFile, con, '-append');
+%         dlmwrite(exitFlagFile, exitflag, '-append');
+%         continue;
+%     end
+%     
+%     %----------------------------------------------------------------------   
+%     % check if the correspond meanZ of maxMeanY satisfies the constraint,
+%     % aka <= kappa, if it satisfies, then this is the solution
+%     if (fvalZmaxY <= kappa) 
+%         % reach = reach + 1;
+%         tauSol = tauSolY;
+%         con = fvalZmaxY;
+%         exitflag = exitflagY;
+%         tauSol1 = tauSol(1:2)';
+%         tauSol2 = tauSol(3:4)';
+%         meanYZ = testset(testseed, tauSol1, tauSol2);
+%         meanYtestdList(k) = meanYZ(1);
+%         meanZtestdList(k) = meanYZ(2);
+%  
+%         dlmwrite(optTauHatFile, tauSol, '-append');
+%         dlmwrite(optObjValFile, fvalY, '-append');
+%         dlmwrite(optConValFile, con, '-append');
+%         dlmwrite(exitFlagFile, exitflag, '-append');
+%         
+%         % if maxY is achieved for three times, we stop calculating further,
+%         % not suitable for parfor
+%         % if ( reach > 3) 
+%         %    break;
+%         % end
+%         %
+%         continue;
+%     end
+%     
+%     %----------------------------------------------------------------------
+%     % if neither the situation above is satisfied, we solve the problem 
+%     % using constrained optimization nonlinear objective function 
+%     % (negative mean Y to be minimized)
+%     obj = @(tau) preEstPrY (tau, Y, H2, A2, H1, A1, n, -1) ;
+%     %Nonlinear Inequality and Equality Constraints
+%     constraint = @(tau) preEstPrZ(tau, Z, H2, A2, H1, A1, kappa, n);
+%     % fmincon options
+%     % options = optimoptions(@fmincon,'Display','iter-detailed','Algorithm','interior-point' , 'FiniteDifferenceStepSize', 1e-2);  
+%     opts = optimoptions(@fmincon,'Display','iter-detailed','Algorithm','interior-point' , 'FinDiffRelStep', 1e-2);  
+%     % opts = optimset('Algorithm', 'interior-point', 'FinDiffRelStep',1e-2); 
+%     problem = createOptimProblem('fmincon', 'objective', obj, 'x0', tau0,  'nonlcon', constraint, 'options', opts);
+%     ms = MultiStart('StartPointsToRun', 'all', 'Display','off');
+%     [tauSol, fval, exitflag] = run(ms, problem, ns);
+%     con = preEstPrY (tauSol, Z, H2, A2, H1, A1, n, 1) ;
+%     fval = -fval;
+%     dlmwrite(optTauHatFile, tauSol, '-append');
+%     dlmwrite(optObjValFile, fval, '-append');
+%     dlmwrite(optConValFile, con, '-append');
+%     dlmwrite(exitFlagFile, exitflag, '-append');
+% 
+%     %----------------------------------------------------------------------
+%     % apple the estimated optimal regime / tauSol above to test dataset
+%     tauSol1 = tauSol(1:2)';
+%     tauSol2 = tauSol(3:4)';
+%     meanYZ = testset(testseed, tauSol1, tauSol2);
+%     meanYtestdList(k) = meanYZ(1);
+%     meanZtestdList(k) = meanYZ(2);
 % end
-% 
-% plot(d_list, qval_list);
-% hold on
-% %%% est_q vs d plot, quantile 25
-% q25_m = prctile(reshape(M,1,N*T), .25);
-% q25_w = prctile(reshape(W,1,N*T), .25);
-% d_list = linspace(0, 1, 30);
-% qval_list = nan(1, 30);
-% f1 = 0;
-% l = 1;
-% for dplot = d_list 
-%     qval_list(l) = qfun(q25_m, q25_w, dplot, f1, med_m, med_w, weights, k);
-%     l = l+1;
-% end
-% 
-% plot(d_list, qval_list);
-% hold on
-% %%% est_q vs d plot, quantile 25
-% q75_m = prctile(reshape(M,1,N*T), .75);
-% q75_w = prctile(reshape(W,1,N*T), .75);
-% d_list = linspace(0, 1, 30);
-% qval_list = nan(1, 30);
-% f1 = 0;
-% l = 1;
-% for dplot = d_list 
-%     qval_list(l) = qfun(q75_m, q75_w, dplot, f1, med_m, med_w, weights, k);
-%     l = l+1;
-% end
-% 
-% plot(d_list, qval_list);
+%toc;
+% plot 
