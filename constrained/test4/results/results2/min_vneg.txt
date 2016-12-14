@@ -1,0 +1,4 @@
+t a u S o l   m i n i m i z e   n e g a t i v e   v a l u e   f u n c t i o n 1             1 . 8 5 9 4             1 . 2 6 8 1           0 . 1 3 4 1 1           0 . 4 6 2 5 5           0 . 1 2 5 3 5           0 . 3 3 1 6 5             1 . 3 8 7 9             1 . 1 7 8 7             1 . 4 4 5 3           0 . 2 4 2 2 1
+p o s i t i v e   v a l u e   f u n c t i o n   o f   m i n i m a l   v n e g 1 0 . 6 2 7 6
+m i n i m a l   n e g a t i v e   v a l u e   f u n c t i o n 1 8 . 7 5 7 8
+e x i t f l a g 1
