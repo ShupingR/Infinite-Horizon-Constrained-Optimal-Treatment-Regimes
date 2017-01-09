@@ -1,0 +1,81 @@
+function [w, A, b] = lsq_two(samples, tau)
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Based on LSPI paper
+%
+% [w, A, b] = lsq(samples, policy, new_policy)
+%
+% Evaluates the "policy" using the set of "samples", that is, it
+% learns a set of weights for the basis specified in new_policy to
+% form the approximate Q-value of the "policy" and the improved
+% "new_policy". The approximation is the fixed point of the Bellman
+% equation.
+%
+% Returns the learned weights w and the matrices A and b of the
+% linear system Aw=b. 
+%
+% See also lsqfast.m for a faster (batch) implementation. 
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  
+  
+  %%% Initialize variables
+  howmany = length(samples);
+  %k = feval(new_policy.basis);
+  k = 25;
+  A = zeros(k, k);
+  b = zeros(k, 1);
+ % mytime = cputime;
+  discount = 0.8;
+  
+  %phi_mat = nan(howmany, 5);
+ % nextphi_mat = nan(howmany, 5);
+  %%% Loop through the samples 
+  for i=1:howmany
+    
+    %%% Compute the basis for the current state and action
+    phi = basis_rbf(samples(i).state, samples(i).action);
+    %%% Make sure the nextstate is not an absorbing state
+    if ~samples(i).absorb
+      %%% Compute the policy and the corresponding basis at the next state 
+      nextaction = policy_function_two(tau, samples(i).nextstate);
+      nextphi = basis_rbf(samples(i).nextstate, nextaction);
+    else
+      nextphi = zeros(k, 1);
+    end
+    % check values of phi and nextphi
+    
+    
+    %%% Update the matrices A and b
+    A = A + phi * (phi - discount * nextphi)';
+    b = b + phi * samples(i).reward;
+%    phi_mat(i, :) = phi';
+ %   nextphi_mat(i, :) = nextphi';
+  end
+
+  %phi_time = cputime - mytime;
+  %disp(['CPU time to form A and b : ' num2str(phi_time)]);
+  %mytime = cputime;
+  
+  %%% Solve the system to find w
+  rankA = rank(A);
+  
+  %rank_time = cputime - mytime;
+  %disp(['CPU time to find the rank of A : ' num2str(rank_time)]);
+  %mytime = cputime;
+  
+  disp(['Rank of matrix A : ' num2str(rankA)]);
+  if rankA==k
+    disp('A is a full rank matrix!!!');
+    w = A\b;
+  else
+    disp(['WARNING: A is lower rank!!! Should be ' num2str(k)]);
+    w = pinv(A)*b;
+  end
+  
+ % solve_time = cputime - mytime;
+ % disp(['CPU time to solve Aw=b : ' num2str(solve_time)]);
+  
+end
+  
