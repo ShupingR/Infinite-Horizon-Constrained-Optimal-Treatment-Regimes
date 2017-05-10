@@ -4,7 +4,7 @@ clear;
 tic;
 nk = 20; % number of bounds
 npar = nk; % parallel number 
-ns = 20; % number of random start
+ns = 5; % number of random start
 K = 4; % number of radial basis functions, not include the intercept
 L = 5; % number of dosage levels
 N = 7000; % training set sample size
