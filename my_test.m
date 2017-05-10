@@ -16,7 +16,7 @@ sample = sample_collect(N, T, K, seed); % generate training set
 % mu parm for radial basis functions
 
 %% set up the solver
-fileName0 = 'unconstrained.txt';
+fileName0 = 'output_may_10_unconstrained.txt';
 sign_min = 1; % to minimize a function
 sign_max = -1; % to maximize a function
 pos_reward = 1; % calculate wrt positive reward
@@ -84,9 +84,9 @@ dlmwrite(fileName0, A, '-append');
 parpool(npar)    
 nu_list = linspace(constraint_min , constraint_max, nk); % a range of constraint
 tau0 = tau_constraint_max;
-for rep = 1:1
+%for rep = 1:1
     %seed = rep + 10;
-    fileName = strcat('output_may_8_',num2str(rep));
+    fileName = strcat('output_may_10_constrained.txt');
     %rng(seed,'twister');
     %sample = sample_collect(N, T, K, seed); % generate training set
     parfor k = 1:nk
@@ -108,7 +108,7 @@ for rep = 1:1
         dlmwrite(fileName, A, '-append')
     end
    % fprintf(fileID,'%d, %4.4f, %4.4f, %d, %4.4f, %4.4f,%4.4f, %4.4f, %4.4f, %4.4f \r\n',A);
-end
+%end
 delete(gcp('nocreate'));
 toc;
 fclose('all');
