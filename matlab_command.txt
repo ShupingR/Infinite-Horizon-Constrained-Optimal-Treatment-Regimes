@@ -1,0 +1,3 @@
+#!/bin/bash
+nohup matlab -nodesktop -nosplash -r "my_test;quit;" &
+
