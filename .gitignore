@@ -487,4 +487,11 @@ _site/
 *.jl.mem
 deps/deps.jl
 
+# Matlab #
+##########
 *.m~
+
+# Figure #
+##########
+*.fig
+
