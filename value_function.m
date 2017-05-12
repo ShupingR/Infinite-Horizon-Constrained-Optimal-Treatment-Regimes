@@ -1,14 +1,13 @@
-% objective function  for positive rewards based on tumor size
-function [ obj, weight ] = value_function(tau, sample, discount, K, L, which_reward, sign)  %, T )
+% value function for either reward
+function [ val, weight ] = value_function(tau, sample, discount, K, L, which_reward, sign)  %, T )
     % input : 
     % tau : policy index
     % sample: sample with defined structure
     % which_reward: 1 positive reward, -1 negative reward
-    % K: number of radial basis functions plus 1 for intercept
-    % L: number of dosage levels
-    % sign: sign = 1, maximize constraint_function; sign = -1, minimize constraint_function  
+    % sign: sign = -1, to maximize function, final value need to flip sign; 
+    %        sign = 1, to minimize function  
     % output:
-    % obj value
+    % val: policy value overall V * sign
     % weight for q function for corresponding rewards
     weight = lsq(tau, sample, discount, K, L, which_reward);
     
@@ -18,13 +17,13 @@ function [ obj, weight ] = value_function(tau, sample, discount, K, L, which_rew
             [ ~, actionphi_pos, ~]= policy_function_deterministic(tau, each_sample);
             pol_val = pol_val + sum(actionphi_pos .* weight);
         end
-        obj = sign * pol_val / length(sample);
+        val = sign * pol_val / length(sample);
     elseif( which_reward == -1 )
         for each_sample = sample
             [ ~, ~, actionphi_neg]= policy_function_deterministic(tau, each_sample);
             pol_val = pol_val + sum(actionphi_neg .* weight);
         end
-        obj = sign * pol_val / length(sample);
+        val = sign * pol_val / length(sample);
     else
         disp('reward not specified');
     end

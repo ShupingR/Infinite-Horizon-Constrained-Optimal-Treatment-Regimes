@@ -27,8 +27,7 @@ tau0 = [ 0; 0; 0; 0; 0; 0 ];
 lb = [ -5; -5; -5; -5; -5; -5 ]; 
 ub = [ 5; 5; 5; 5; 5; 5 ];
 
-options = optimset('Algorithm','interior-point', 'LargeScale', 'off', ...
-                          'Display','off');
+options = optimset('Algorithm','interior-point', 'LargeScale', 'off', 'Display','off');
                       %,'FinDiffRelStep', 1e-4, ...
                        %   'PlotFcns',@optimplotfval);
 ms = MultiStart('StartPointsToRun', 'all', 'Display','off');

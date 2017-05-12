@@ -1,3 +1,5 @@
+% grid plot for value of objective function and constraint function over
+% a grid of tau (2d)
 clear;
 %profile on; 
 % Training to get q function's weight and policy index
@@ -19,8 +21,8 @@ pos_reward = 1; % calculate wrt positive reward
 neg_reward = -1; % calculate wrt negative reward
 O = nan;
 C = nan;
-tau1List = -10:0.5:10;
-tau2List = -10:0.5:10;
+tau1List = -5:0.5:10;
+tau2List = -5:0.5:10;
 [tau1, tau2] = meshgrid(tau1List, tau2List);
 npar = 24;
 parpool(npar)  

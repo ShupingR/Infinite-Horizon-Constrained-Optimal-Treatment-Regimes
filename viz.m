@@ -1,28 +1,46 @@
 %% load data
-load output_3.txt
-dat = sort(output_3, 1);
+load output_may_10_constrained.txt
+dat = sort(output_may_10_constrained, 1);
 dat = array2table(dat);
-dat.Properties.VariableNames = {'k' 'kappa' 'fval' 'exitflag' 'tau1' 'tau2' 'tau3' 'tau4' 'tau5' 'tau6'};
-tauTab = [ dat.tau1, dat.tau2, dat.tau3, dat.tau4, dat.tau5, dat.tau6 ];
-kappaList = dat.kappa;
-%% generate test dataset, do not retrain weights using test dataset!
-N = 2000;
-T = 7;
-seed_train = 111;
-seed_test = 222;
-train_sample = sample_collect(3*N, T, seed_train);
-test_sample = test_sample_collect(N, T, seed_test); 
-  
+dat.Properties.VariableNames = { 'k' 'nu' 'objective_val' 'constraint_val' 'exitflag' ...
+                                              'tau0' 'tau1' 'tau2' 'tau3' 'tau4' 'tau5'};
+tauTab = [ dat.tau0, dat.tau1, dat.tau2, dat.tau3, dat.tau4, dat.tau5 ];
+nuList = dat.nu;
+
+%% generate train dataset 
+nk = 20; % number of bounds
+npar = nk; % parallel number 
+ns = 5; % number of random start
+K = 4; % number of radial basis functions, not include the intercept
+L = 5; % number of dosage levels
+N = 7000; % training set sample size
+T = 7; % number of stages
+discount = 0.8;
+seed = 222;
+rng(seed,'twister');
+train_sample = sample_collect(N, T, K, seed); % generate training set
+
 % plot pareto efficient frontier on training dataset
 % calculate neg valfun
-train_val_neg = nan(length(kappaList),1);
+train_pos_val = nan(length(nuList),1);
+train_neg_val = nan(length(nuList),1);
+pos_weight = nan(5*5, length(nuList));
+neg_weight = nan(5*5, length(nuList));
+which_reward_pos = 1;
+which_reward_neg = -1;
+sign = 1;
 
-for k = 1:length(kappaList)
-    kappa = kappaList(k);
+for k = 1:length(nuList)
+    tic;
     tau = tauTab(k, :)';
-    train_val_neg(k) = constraint_function_two( tau, train_sample, kappa)  + kappa;
+    [ train_pos_val(k), pos_weight(:,k) ] = ...
+        value_function(tau, train_sample, discount, K, L, which_reward_pos, sign);
+    [ train_neg_val(k), neg_weight(:,k) ] = ...
+        value_function(tau, train_sample, discount, K, L, which_reward_neg, sign);
+    toc;
 end
 
+%%
 h = figure;
 plot(kappaList, dat.fval,'--ro',kappaList, train_val_neg,'-.bo','LineWidth',1.5);
 %    hold on;
@@ -49,6 +67,10 @@ print('efficient_plot_train', '-dpdf', '-bestfit' ) ;
 close(h);
 
 
+%% generate test dataset, do not re-train weights using test dataset!
+seed_test = 111;
+test_sample = test_sample_collect(N, T, seed_test); 
+  s
 % calculate weights and plot
 
 algorithm = 1;  
@@ -70,10 +92,10 @@ neg_weight_mat = nan(length(kappaList), 25);
 for k = 15
     tau = tauTab(k, :)';% column vector
     [pos_weights, ~] = lspi_two_pos( algorithm, maxiterations, epsilon, ...
-                                                 train_sample, initial_policy_weights, tau);
+                                                 train_sample, initial_policy_weights, tau );
                                              
     [neg_weights, ~] = lspi_two_neg( algorithm, maxiterations, epsilon, ...
-                                                  train_sample, initial_policy_weights, tau);
+                                                  train_sample, initial_policy_weights, tau );
                                               
     [test_val_pos(k), test_val_neg(k) ] = ...
         val_testset(tau, pos_weights, neg_weights, test_sample );

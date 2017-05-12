@@ -1,3 +1,4 @@
+% Apply a estimated indexing parameter and weights to a new testset 
 function [ val_pos, val_neg ] = val_testset(tau, pos_weight, neg_weight, sample ) %, T )
     % positive reward 1 objective
     % negative reward -1 constraint
