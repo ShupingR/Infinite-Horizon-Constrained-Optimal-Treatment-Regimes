@@ -1,9 +1,9 @@
 % initial start for K is the solution of K-1
 clear;
 tic;
-nk = 10; % number of bounds
+nk = 20; % number of bounds
 npar = nk; % parallel number 
-ns = 5; % number of random start
+ns = 50; % number of random start
 K = 4; % number of radial basis functions, not include the intercept
 L = 5; % number of dosage levels
 N = 7000; % training set sample size

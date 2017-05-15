@@ -82,7 +82,7 @@ dlmwrite(fileName0, A, '-append');
 %%
 parpool(npar)    
 nu_list = linspace(constraint_min , constraint_max, nk); % a range of constraint
-tau0 = tau_constraint_min;
+tau0 = tau_constraint_max;
 %for rep = 1:1
     %seed = rep + 10;
     fileName = strcat('output_may_10_constrained.txt');
