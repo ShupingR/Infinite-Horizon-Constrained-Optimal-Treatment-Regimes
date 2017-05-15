@@ -1,6 +1,6 @@
 %% load data
 load output_may_10_constrained.txt
-dat = sortrows(output_may_10_constrained, 1);
+dat = sortrows(output_may_10_constrained, 1); % sort the result by first column
 dat = array2table(dat);
 dat.Properties.VariableNames = { 'k' 'nu' 'objective_val' 'constraint_val' 'exitflag' ...
                                               'tau0' 'tau1' 'tau2' 'tau3' 'tau4' 'tau5'};
