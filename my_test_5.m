@@ -3,7 +3,7 @@
 clear;
 tic;
 nk = 20; % number of bounds
-npar = 20; % parallel number 
+npar = 10; % parallel number 
 ns = 50; % number of random start
 K = 4; % number of radial basis functions, not include the intercept
 L = 5; % number of dosage levels
@@ -81,7 +81,7 @@ dlmwrite(fileName0, A, '-append');
 
 %%
 parpool(npar)    
-parfor rep = 41:60
+parfor rep = 41:50
     seed = rep + 1000;
     % unconstrained file name
     fileName0 = strcat('output_may_16_unconstrained_rep_', num2str(rep), '.txt');
