@@ -55,7 +55,7 @@ A = [ 2, constraint_max, exitflag, ...
         vec2mat(tau_constraint_max, length(tau_constraint_max)) ];
 dlmwrite(fileName0, A, '-append');
 
-%% solve min/max constraint
+%% solve min/max objective
 % find min objective fun value
 my_objective_min = @(tau) value_function( tau, sample, discount, K, L, ...
                                pos_reward, sign_min );
