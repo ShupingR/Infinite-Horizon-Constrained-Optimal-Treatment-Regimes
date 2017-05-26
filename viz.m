@@ -15,7 +15,7 @@ L = 5; % number of dosage levels
 N = 7000; % training set sample size
 T = 7; % number of stages
 discount = 0.8;
-seed = rep + 1000;
+test_seed = 111;
 rng(seed,'twister');
 test_sample = sample_collect(N, T, K, seed); % generate training set
 
