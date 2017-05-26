@@ -17,7 +17,7 @@ T = 7; % number of stages
 discount = 0.8;
 test_seed = 111;
 rng(test_seed,'twister');
-test_sample = sample_collect(N, T, K, seed); % generate training set
+test_sample = sample_collect(N, T, K, test_seed); % generate training set
 
 for rep = 1:REP
     % constrained par
@@ -110,28 +110,15 @@ mean_std_tau(:,1:2:end) = mean_tau;
 mean_std_tau(:, 2:2:end) = std_tau;
 upper_ci_tau = mean_tau + 1.96 * std_tau / sqrt(REP);
 lower_ci_tau = mean_tau - 1.96 * std_tau / sqrt(REP);
-result_tab= horzcat( nuList, mean_test_pos_val', std_test_pos_val', ...
+ci_tau_tab= horzcat( nuList, mean_test_pos_val', std_test_pos_val', ...
                  mean_test_neg_val', std_test_neg_val', mean_std_tau);
-result_filename = 'result_tab.txt';
-dlmwrite(result_filename, result_tab , '-append');
+figure
+title('Confidence interval for tau')
+for i = 1: 6
+    subplot(3,2,i)
+    errorbar(nuList, mean_tau(:,i), upper_ci_tau(:,i), lower_ci_tau(:,i), 'o');
   % tex file
-result_tex = 'result_tab.tex';
-FID = fopen(result_tex, 'w');
-fprintf(FID, '\\begin{tabular}{rrrrrrrrrrrrrrrrr}\\hline \n');
-
-fprintf(FID, '$\\nu$  & $\\wh{V}^+$ & $std(\\wh{V}^+)$ & $\\wh{V}^-$ & $std(\\wh{V}^-)$ &  $\\wh{\\tau}_{\\nu,1}$ & $std(\\wh{\\tau}_{\\nu,1})$ & $\\wh{\\tau}_{\\nu,2}$ & $std(\\wh{\\tau}_{\\nu,2})$ &  $\\wh{\\tau}_{\\nu,3}$ & $std(\\wh{\\tau}_{\\nu,3})$ & $\\wh{\\tau}_{\\nu,4}$ & $std(\\wh{\\tau}_{\\nu,4})$ &  $\\wh{\\tau}_{\\nu,5}$ & $std(\\wh{\\tau}_{\\nu,5})$ & $\\wh{\\tau}_{\\nu,6}$ & $std(\\wh{\\tau}_{\\nu,6})$ \\\\ \\hline \n');
-printtab = result_tab;
-  for k=1:size(printtab,1)
-      printline = printtab(k, :);
-      fprintf(FID, '%8.2f & %8.2f & %8.2f & %8.2f  & %8.2f &  %8.2f &  %8.2f &  %8.2f &  %8.2f &  %8.2f &  %8.2f &  %8.2f &  %8.2f &  %8.2f &  %8.2f &  %8.2f &  %8.2f \\\\ ', printline);
-      if k==size(printtab,1)
-          fprintf(FID, '\\hline ');
-      end
-      fprintf(FID, '\n');
-  end
-  fprintf(FID, '\\end{tabular}\n');
-  fclose(FID);
-    
+end
 
 
 
