@@ -112,13 +112,39 @@ upper_ci_tau = mean_tau + 1.96 * std_tau / sqrt(REP);
 lower_ci_tau = mean_tau - 1.96 * std_tau / sqrt(REP);
 ci_tau_tab= horzcat( nuList, mean_test_pos_val', std_test_pos_val', ...
                  mean_test_neg_val', std_test_neg_val', mean_std_tau);
-figure
-title('Confidence interval for tau')
+             
+
+% plot
+width=10;
+height=16;
+x0=1;
+y0=1;
+figure('Units','inches', 'Position',[x0 y0 width height], 'PaperPositionMode','auto');
+% (x0,y0) = position of the lower left side of the figure
+
 for i = 1: 6
-    subplot(3,2,i)
+    subplot(6,1,i)
     errorbar(nuList, mean_tau(:,i), upper_ci_tau(:,i), lower_ci_tau(:,i), 'o');
+   str = sprintf('$$\\widehat{\\tau}_{\\nu,%d}$$',i);
+   %text('Interpreter','latex','Position',[1 2],'String',str)
+    % ylabel({'$\widehat{\tau}_{\nu,%d}$',i}, 'interpreter' ,'latex', 'FontSize',15 )
+   txt = ['$\widehat{\tau}_{\nu},$', num2str(i)];
+   ylabel({txt}, 'interpreter' ,'latex', 'FontSize',15)
   % tex file
 end
+xlabel({'$\nu$ bound on secondary potential outcome'}, 'interpreter' ,'latex', 'FontSize',15 )
+% ylabel({'$\widehat{V}$ values of estimated constrained optimal regimes'},...
+%           'interpreter' ,'latex', 'FontSize',15 )
+currentFigure = gcf;
+title(currentFigure.Children(end), {'Confidence interval for components of $\widehat{\bf{\tau}}_{\nu}$'},'interpreter' ,'latex' , 'FontSize',15);
+%title({'Confidence interval for $\widehat{\boldsymbol{\tau}}'},'interpreter' ,'latex', 'FontSize',15);
+% legend({'$\widehat{V}_1$ vs. $\nu$',  '$\widehat{V}_2$ vs. $\nu$'}, ...
+%          'interpreter' ,'latex', 'Location','SouthEast','FontSize',15);
 
-
+% axis([0 t(end) -1.5 1.5]);
+set(gca, 'Units','normalized', ...
+     'FontUnits','points',...
+     'FontWeight','normal')%,...
+    % 'FontSize',15);
+print('tau_ci', '-dpdf', '-bestfit' ) ;
 
