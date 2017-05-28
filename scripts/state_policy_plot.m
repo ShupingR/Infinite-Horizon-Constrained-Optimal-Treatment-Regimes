@@ -28,7 +28,7 @@ tauTab = [ dat.tau0, dat.tau1, dat.tau2, dat.tau3, dat.tau4, dat.tau5 ];
 nuList = dat.nu; % constraint value on secondary value 
 
 %%             
-cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/
+cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/plots
 % plot q(s,a), v(s)
 [pos_state, neg_state] = meshgrid(-1.5: 0.1 :4.0, -1.5: 0.1 :4.0);
 % weights for q functions 
@@ -45,7 +45,7 @@ act_pol_mat = nan(size(pos_state, 1), size(pos_state, 2), length(nuList));
 %     test_val_pos = nan(length(nuList), 1); 
 %     test_val_neg = nan(length(nuList), 1);
 
-for k = 1:20
+for k = 1:1
     tau = tauTab(k, :)';% column vector
     [pos_weights, ~, ~] = lsq_pos(tau, test_sample, discount, K, L); 
     [neg_weights, ~, ~] = lsq_neg(tau, test_sample, discount, K, L);                                          
@@ -92,7 +92,7 @@ for k = 1:20
     h4 = surface(pos_state, neg_state, pos_qsa_mat(:, :, 4, k));
     h5 = surface(pos_state, neg_state, pos_qsa_mat(:, :, 5, k));
     legend([h1, h2, h3, h4, h5], {'a1', 'a2', 'a3', 'a4', 'a5'});
-    title( {['Q function for positive rewards, Q+(s,a) with constraint upperboud $\nu$ = ' , ...
+    title( {['$Q^{+}(s,a)$ with constraint upperboud $\nu$ = ' , ...
            num2str(nuList(k))]},  'interpreter' ,'latex', 'FontSize',15);
     xlabel({'State: tumor size'},  'interpreter' ,'latex', 'FontSize',15);
     ylabel({'State: toxicity'}, 'interpreter' ,'latex', 'FontSize',15);   
@@ -113,7 +113,7 @@ for k = 1:20
     h4 = surface(pos_state, neg_state, neg_qsa_mat(:, :, 4, k));
     h5 = surface(pos_state, neg_state, neg_qsa_mat(:, :, 5, k));
     legend([h1, h2, h3, h4, h5], {'a1', 'a2', 'a3', 'a4', 'a5'});
-    title( {['Q function for negative rewards, Q-(s,a) with constraint upperboud $\nu$ = ' , ...
+    title( {['$Q^{-}(s,a)$ with constraint upperboud $\nu$ = ' , ...
            num2str(nuList(k))]},  'interpreter' ,'latex', 'FontSize',15);
     xlabel({'State: tumor size'},  'interpreter' ,'latex', 'FontSize',15);
     ylabel({'State: toxicity'}, 'interpreter' ,'latex', 'FontSize',15);   
@@ -126,29 +126,35 @@ for k = 1:20
     close(h_2)
    % plot for V+(s) and V-(s)
    
-    h_3 = figure;
-    subplot( 2, 1, 1);
+    h_3_1 = figure;
     view(3)
     surface(pos_state, neg_state, pos_vs_pol_mat(:, :, k));
-    title( {[ 'Value function for positive rewards, V+(s) with constraint upperboud $\nu$ = ' , ...
+    title( {[ '$V^{+}(s)$ with constraint upperboud $\nu$ = ' , ...
            num2str(nuList(k))]}, 'interpreter' ,'latex', 'FontSize',15 );
     xlabel({'State: tumor size'}, 'interpreter' ,'latex', 'FontSize',15);
     ylabel({'State: toxicity'}, 'interpreter', 'latex', 'FontSize', 15);   
     zlabel({'Value function for positive rewards'},'interpreter', 'latex', 'FontSize', 15);
-    subplot( 2, 1, 2); 
-    view(3)
-    surface(pos_state, neg_state, neg_vs_pol_mat(:, :, k));
-    title({['Value function for negative rewards, V-(s) with constraint upperboud $\nu$ = ' , ...
-           num2str(nuList(k))]}, 'interpreter' ,'latex', 'FontSize',15);
-    xlabel({'State: tumor size'}, 'interpreter' ,'latex', 'FontSize',15);
-    ylabel({'State: toxicity'}, 'interpreter', 'latex', 'FontSize', 15);   
-    zlabel({'Value function for negative rewards'},'interpreter', 'latex', 'FontSize', 15);
     set(gca, 'Units','normalized', ...
          'FontUnits','points',... 
          'FontWeight','normal',... 
          'FontSize',15);
     print(strcat('state_value_nu', num2str(k)), '-dpdf', '-bestfit' ); 
-   % close(h_3)
+    close(h_3_1)
+    
+    h_3_2 = figure;
+    view(3)
+    surface(pos_state, neg_state, neg_vs_pol_mat(:, :, k));
+    title({['$\widehat{V}^{-}(s)$ of estimated constrained optimal regime, $\nu$ = ' , ...
+           num2str(nuList(k))]}, 'interpreter' ,'latex', 'FontSize',15);
+    xlabel({'State $M$: tumor size'}, 'interpreter' ,'latex', 'FontSize',15);
+    ylabel({'State $W$: toxicity'}, 'interpreter', 'latex', 'FontSize', 15);   
+    zlabel({'$\widehat{V}^{-}(s)$'},'interpreter', 'latex', 'FontSize', 15);
+    set(gca, 'Units','normalized', ...
+         'FontUnits','points',... 
+         'FontWeight','normal',... 
+         'FontSize',15);
+    print(strcat('state_value_nu', num2str(k)), '-dpdf', '-bestfit' ); 
+    close(h_3_2)
     
     % plot for action each state
      h_4= figure;
@@ -156,8 +162,9 @@ for k = 1:20
      surface(pos_state, neg_state, act_pol_mat(:, :, k));
      xlabel({'State variable $M$'}, 'interpreter' ,'latex', 'FontSize',15 )
      ylabel({'State variable $W$'}, 'interpreter' ,'latex', 'FontSize',15 )
-     title({'Action for each state under the estimated constrained optimal regime'},...
-          'interpreter' ,'latex', 'FontSize',15);
+     title({[ 'Action for each state under estimated' ; ...
+              'constrained optimal regime, $\nu$ =' , ...
+              num2str(nuList(k))]}, 'interpreter' ,'latex', 'FontSize',15);
   %   legend({'$\widehat{V}^{+}$ vs. $\nu$',  '$\widehat{V}^{-}$ vs. $\nu$'}, ...
    %        'interpreter' ,'latex', 'Location','SouthEast','FontSize',15);
   % axis([0 t(end) -1.5 1.5]);
