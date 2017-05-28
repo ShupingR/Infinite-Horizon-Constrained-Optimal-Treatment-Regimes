@@ -1,14 +1,13 @@
 %% load data
-REP = 2;
-test_pos_val_mat = nan(REP, 20);
-test_neg_val_mat = nan(REP, 20);
-pos_weight_mat = nan(REP, 20, 5*5);
-neg_weight_mat = nan(REP, 20, 5*5);
-min_constraint_mat = nan(REP, 20);
-max_constraint_mat = nan(REP, 20);
-min_objective_mat = nan(REP, 20);
-max_objective_mat = nan(REP, 20);
-tau_mat = nan( 20, 6, REP);
+test_pos_val_mat = nan(20,1);
+test_neg_val_mat = nan(20, 1);
+pos_weight_mat = nan(20, 5*5);
+neg_weight_mat = nan(20, 5*5);
+min_constraint_mat = nan(20, 1);
+max_constraint_mat = nan(20, 1);
+min_objective_mat = nan(20, 1);
+max_objective_mat = nan(20, 1);
+tau_mat = nan( 20, 6);
 % test samples
 K = 4; % number of radial basis functions, not include the intercept
 L = 5; % number of dosage levels
@@ -112,6 +111,9 @@ upper_ci_tau = mean_tau + 1.96 * std_tau / sqrt(REP);
 lower_ci_tau = mean_tau - 1.96 * std_tau / sqrt(REP);
 result_tab= horzcat( nuList, mean_test_pos_val', std_test_pos_val', ...
                  mean_test_neg_val', std_test_neg_val', mean_std_tau);
+
+cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/results/
+
 result_filename = 'result_tab.txt';
 dlmwrite(result_filename, result_tab , '-append');
   % tex file

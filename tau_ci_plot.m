@@ -113,7 +113,7 @@ lower_ci_tau = mean_tau - 1.96 * std_tau / sqrt(REP);
 ci_tau_tab= horzcat( nuList, mean_test_pos_val', std_test_pos_val', ...
                  mean_test_neg_val', std_test_neg_val', mean_std_tau);
              
-
+cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/results/
 % plot
 width=10;
 height=16;
@@ -132,7 +132,7 @@ for i = 1: 6
    ylabel({txt}, 'interpreter' ,'latex', 'FontSize',15)
   % tex file
 end
-xlabel({'$\nu$ bound on secondary potential outcome'}, 'interpreter' ,'latex', 'FontSize',15 )
+xlabel({'$\nu$ bounds on secondary potential outcome'}, 'interpreter' ,'latex', 'FontSize',15 )
 % ylabel({'$\widehat{V}$ values of estimated constrained optimal regimes'},...
 %           'interpreter' ,'latex', 'FontSize',15 )
 currentFigure = gcf;

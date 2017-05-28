@@ -58,6 +58,7 @@ for rep = 1:REP
 end
 
 %%
+cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/results/
 h = figure;
 % pos
 mean_test_pos_val = mean(test_pos_val_mat, 1);
@@ -120,7 +121,7 @@ lower_ci_max_objective = mean_max_objective - 1.96 * std_max_objective / sqrt(RE
 hline = refline(0, mean_max_objective(1));
 set(hline,'LineStyle',':', 'Color', 'r','LineWidth',1.5);
 
-xlabel({'$\nu$ bound on the secondary objective'}, ...
+xlabel({'$\nu$ bounds on the secondary objective'}, ...
          'interpreter' ,'latex', 'FontSize',15 )
 ylabel({'$\widehat{V}^{+}$ / $\widehat{V}^{-}$ values of estimated constrained optimal regimes'},...
           'interpreter' ,'latex', 'FontSize',15 )
@@ -135,4 +136,4 @@ set(gca, 'Units','normalized', ...
        'FontSize',15);
 saveas(gca, 'plot');
 print('efficient_plot', '-dpdf', '-bestfit' ) ;
-close(h);
+% close(h);

@@ -144,6 +144,15 @@ function sample = sample_collect(N, T, K, seed)
    [ sample_prctile_state_pos, sample_dist_state_pos ] = rbf_parm(M, K);
    [ sample_prctile_state_neg, sample_dist_state_neg ] = rbf_parm(W, K);
    
+   disp('sample_prctile_state_pos');
+   disp(sample_prctile_state_pos);
+   disp('sample_dist_state_pos');
+   disp(sample_dist_state_pos);
+   disp('sample_prctile_state_neg');
+   disp(sample_prctile_state_neg);
+   disp('sample_dist_state_neg');
+   disp(sample_dist_state_neg);
+   
     q = 1;
     for i = 1:N
         for t = 1:T-1
