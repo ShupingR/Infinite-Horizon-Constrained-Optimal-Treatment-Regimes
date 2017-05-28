@@ -2,9 +2,9 @@
 % first batch of 20 replicates
 clear;
 tic;
-nk = 20; % number of bounds
-npar = 20; % parallel number 
-ns = 50; % number of random start
+nk = 2; % number of bounds
+npar = 2; % parallel number 
+ns = 1; % number of random start
 K = 4; % number of radial basis functions, not include the intercept
 L = 5; % number of dosage levels
 N = 7000; % training set sample size
@@ -81,7 +81,7 @@ dlmwrite(fileName0, A, '-append');
 
 %%
 parpool(npar)    
-parfor rep = 1:20
+parfor rep = 1:2
     seed = rep + 1000;
     % unconstrained file name
     fileName0 = strcat('output_may_16_unconstrained_rep_', num2str(rep), '.txt');

@@ -1,6 +1,6 @@
-%%---------------------------------------------%%
+%%-------------------------------------------%%
 %  deterministic polynomial policy function   %
-%%---------------------------------------------%%
+%%-------------------------------------------%%
 
 function [action, actionphi_pos, actionphi_neg] = ...
     policy_function_deterministic(tau, asample)

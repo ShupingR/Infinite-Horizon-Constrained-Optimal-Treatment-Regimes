@@ -1,3 +1,7 @@
+%--------------------------------%
+% wrapper of lsq_neg and lsq_pos %
+%--------------------------------%
+
 function weights = lsq(tau, sample, discount, K, L, which_reward)
     % input: 
     % samples: samples generated 

@@ -1,8 +1,9 @@
-% construct the basis functions for the action taken: radial basis function
-% computes a number of radial basis functions (on state) with means equal to
-% percentiles. This block of basis functions is duplicated for each action.
-% The "action" determines which segment will be active.
-%
+%----------------------------------------------------------------------------%
+% construct the basis functions for the action taken: radial basis function  %
+% computes a number of radial basis functions (on state) with means equal to %
+% percentiles. This block of basis functions is duplicated for each action.  %
+% The "action" determines which segment will be active.                      %
+%----------------------------------------------------------------------------%
 
 % checkmark
 function phi = basis_fast(state, action, prctile_state, dist_state)

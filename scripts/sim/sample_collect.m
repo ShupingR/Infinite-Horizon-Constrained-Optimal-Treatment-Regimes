@@ -1,11 +1,11 @@
-%-------------------------------------------------------------------------------------------
+%---------------------------------------------------------------------------%
 % generate sample with neg reward and positive reward together
 % normalized and scaled W (negative wellness) and M(tumor size)
 % according to the replicates of the simulated dataset using ode modeling 
 % in reinforcement learning clinical design. 
 % ref: Reinforcement learning design for cancer clinical trials
 % Stat Med. 2009 November 20; 28(26): 3294?3315. doi:10.1002/sim.3720.
-%-------------------------------------------------------------------------------------------
+%---------------------------------------------------------------------------%
 
 
 function sample = sample_collect(N, T, K, seed)

@@ -1,5 +1,7 @@
-% constraint function  for negative rewards based on negative wellness/toxicity
-function [c, ceq] = constraint(tau, sample, discount, K, L, nu) 
+%------------------------------------------------------------------------------%
+% constraint function for negative rewards based on negative wellness/toxicity %
+%------------------------------------------------------------------------------%
+function [c, ceq] = constraint(tau, sample, discount, K, L, nu)
      % input : 
     % tau : policy index
     % sample: sample with defined structure
