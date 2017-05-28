@@ -3,16 +3,17 @@
 %-----------------
 %% load data
 REP = 300;
-test_pos_val_mat = nan(REP, length(nuList));
-test_neg_val_mat = nan(REP, length(nuList));
-pos_weight_mat = nan(REP, length(nuList), 5*5);
-neg_weight_mat = nan(REP, length(nuList), 5*5);
-min_constraint_mat = nan(REP, length(nuList));
-max_constraint_mat = nan(REP,length(nuList));
-min_objective_mat = nan(REP, length(nuList));
-max_objective_mat = nan(REP, length(nuList));
+test_pos_val_mat = nan(REP, 20);
+test_neg_val_mat = nan(REP, 20);
+pos_weight_mat = nan(REP, 20, 5*5);
+neg_weight_mat = nan(REP, 20, 5*5);
+min_constraint_mat = nan(REP, 20);
+max_constraint_mat = nan(REP,20);
+min_objective_mat = nan(REP, 20);
+max_objective_mat = nan(REP, 20);
 
 % test samples
+cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/scripts/sim/
 K = 4; % number of radial basis functions, not include the intercept
 L = 5; % number of dosage levels
 N = 7000; % training set sample size
@@ -25,7 +26,7 @@ test_sample = sample_collect(N, T, K, test_seed); % generate training set
 
 for rep = 1:REP
     % constrained par
-    cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/sim_results/may_24/constrained/
+    cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/sim_results/constrained/
     fileName = [ 'output_may_16_constrained_sequential_initial_rep_' num2str(rep) ]; 
     dataStruct.(fileName) =  load( [ fileName '.txt' ]);
     dat = sortrows(dataStruct.(fileName) , 1); % sort the result by first column
@@ -35,7 +36,7 @@ for rep = 1:REP
     tauTab = [ dat.tau0, dat.tau1, dat.tau2, dat.tau3, dat.tau4, dat.tau5 ];
     nuList = dat.nu; % constraint value on secondary value 
 
-    cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/
+    cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/scripts/sim/
     which_reward_pos = 1; % positive reward
     which_reward_neg = -1; % negative reward
     sign = 1; % original function value 
@@ -50,30 +51,31 @@ for rep = 1:REP
         toc;
     end
     % unconstrained part
-    cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/results/may_24/unconstrained/
+    cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/sim_results/unconstrained/
     fileName2 = [ 'output_may_16_unconstrained_rep_' num2str(rep) ]; 
     dataStruct2.(fileName2) =  load( [ fileName2 '.txt' ]);
     dat2 = dataStruct2.(fileName2);
+    cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/scripts/sim/
     % min constraint value
-    min_constraint_tau = dat2(1, 7:12);
+    min_constraint_tau = dat2(1, 4:9)';
     min_constraint = value_function(min_constraint_tau, test_sample, discount, K, L, which_reward_neg, sign);
     min_constraint_mat(rep, :) = repmat(min_constraint, 1, length(nuList));
     % max constraint value
-    max_constraint_tau = dat2(2, 7:12);
+    max_constraint_tau = dat2(2, 4:9)';
     max_constraint = value_function(max_constraint_tau, test_sample, discount, K, L, which_reward_neg, sign);
-    min_constraint_mat(rep, :) = repmat(min_constraint, 1, length(nuList));
+    max_constraint_mat(rep, :) = repmat(max_constraint, 1, length(nuList));
     % min objective value
-    min_objective_tau = dat2(3, 7:12);
+    min_objective_tau = dat2(3, 4:9)';
     min_objective = value_function(min_objective_tau, test_sample, discount, K, L, which_reward_pos, sign);
     min_objective_mat(rep, :) = repmat(min_objective, 1, length(nuList));
     % max objective value
-    max_objective_tau = dat2(4, 7:12);
+    max_objective_tau = dat2(4, 4:9)';
     max_objective = value_function(max_objective_tau, test_sample, discount, K, L, which_reward_pos, sign);
     max_objective_mat(rep, :) = repmat(max_objective, 1, length(nuList));
 end
 
 %%
-cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/results/
+cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/plot_results/
 h = figure;
 % pos
 mean_test_pos_val = mean(test_pos_val_mat, 1);
@@ -95,7 +97,7 @@ lower_ci_train_neg_val = mean_test_neg_val - 1.96 * std_test_neg_val / sqrt(REP)
 neg_ci_neg_val = mean_test_neg_val - lower_ci_train_neg_val;
 pos_ci_neg_val = upper_ci_test_neg_val - mean_test_neg_val;
 errorbar(nuList, mean_test_neg_val, neg_ci_neg_val, pos_ci_neg_val, '--bo');
-hold off;
+
 hline = refline(1,0);
 set(hline,'LineStyle',':', 'LineWidth',1.5);
 
@@ -136,11 +138,11 @@ lower_ci_max_objective = mean_max_objective - 1.96 * std_max_objective / sqrt(RE
 hline = refline(0, mean_max_objective(1));
 set(hline,'LineStyle',':', 'Color', 'r','LineWidth',1.5);
 
-xlabel({'$\nu$ bounds on the secondary objective'}, ...
+xlabel({'Constraints $\nu$ '}, ...
          'interpreter' ,'latex', 'FontSize',15 )
-ylabel({'$\widehat{V}^{+}$ / $\widehat{V}^{-}$ values of estimated constrained optimal regimes'},...
+ylabel({'$\widehat{V}^{+/-}$ of estimated constrained optimal regimes'},...
           'interpreter' ,'latex', 'FontSize',15 )
-title({'Efficient Frontier Plot $\widehat{V}^{+}$ / $\widehat{V}^{-}$ vs. $\nu$'},...
+title({'Efficient frontier plot $\widehat{V}^{+/-}$ vs. $\nu$'},...
         'interpreter' ,'latex', 'FontSize',15);
 legend({'$\widehat{V}^{+}$ vs. $\nu$',  '$\widehat{V}^{-}$ vs. $\nu$'}, ...
            'interpreter' ,'latex', 'Location','SouthEast','FontSize',15);
