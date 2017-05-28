@@ -1,4 +1,7 @@
-% value function for either reward
+%--------------------------------------%
+% value function for either reward %
+%--------------------------------------%
+
 function [ val, weight ] = value_function(tau, sample, discount, K, L, which_reward, sign)  %, T )
     % input : 
     % tau : policy index

@@ -1,4 +1,7 @@
-% deterministic polynomial policy function
+%-------------------------------------------------------%
+% deterministic polynomial policy function            %
+% calcuate the action of the policy for each state % 
+%-------------------------------------------------------%
 function [action, actionphi_pos, actionphi_neg] = ...
     policy_function_deterministic_state(tau, pos_s, neg_s, ...
         prctile_state_pos, dist_state_pos, prctile_state_neg, dist_state_neg)

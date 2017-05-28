@@ -5,9 +5,6 @@
 % in reinforcement learning clinical design. 
 % ref: Reinforcement learning design for cancer clinical trials
 % Stat Med. 2009 November 20; 28(26): 3294?3315. doi:10.1002/sim.3720.
-% Oct 17
-% Mar 11
-% Mar 28
 %-------------------------------------------------------------------------------------------
 
 

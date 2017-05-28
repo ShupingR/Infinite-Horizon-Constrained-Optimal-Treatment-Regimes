@@ -1,4 +1,7 @@
-%% plot for showing treatment assignement for any state.
+%%----------------------------------------------------------------%%
+%  plot for showing treatment assignement for each state.    %
+%%----------------------------------------------------------------%%
+
 %% load data
 % test samples
 K = 4; % number of radial basis functions, not include the intercept
@@ -51,6 +54,7 @@ for k = 1:1
     [neg_weights, ~, ~] = lsq_neg(tau, test_sample, discount, K, L);                                          
     pos_weight_mat(k, :) = pos_weights;
     neg_weight_mat(k, :) = neg_weights;
+    % loop through each state to calculate its q function and v function 
     for i = 1: size(pos_state, 1)
         for j = 1: size(pos_state, 2)
             pos_s = pos_state(i, j);
@@ -124,8 +128,8 @@ for k = 1:1
          'FontSize',15);
     print(strcat('q_neg_nu', num2str(k)), '-dpdf', '-bestfit' ); 
     close(h_2)
-   % plot for V+(s) and V-(s)
-   
+    
+   % plot for V+(s) 
     h_3_1 = figure;
     view(3)
     surface(pos_state, neg_state, pos_vs_pol_mat(:, :, k));
@@ -141,6 +145,7 @@ for k = 1:1
     print(strcat('state_value_nu', num2str(k)), '-dpdf', '-bestfit' ); 
     close(h_3_1)
     
+    % and V-(s)
     h_3_2 = figure;
     view(3)
     surface(pos_state, neg_state, neg_vs_pol_mat(:, :, k));
