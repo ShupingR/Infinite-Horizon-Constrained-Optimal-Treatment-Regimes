@@ -1,8 +1,11 @@
 %-------------------------------------
 % plot for tau confidence interval
 %-------------------------------------
+%% add path 
+curr_folder = pwd;
+addpath(genpath(curr_folder))
 %% load data
-cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/scripts/sim/
+% cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/scripts/sim/
 REP = 300;
 test_pos_val_mat = nan(REP, 20);
 test_neg_val_mat = nan(REP, 20);
@@ -25,7 +28,7 @@ test_sample = sample_collect(N, T, K, test_seed); % generate training set
 
 for rep = 1:REP
     % constrained par
-    cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/sim_results/constrained/
+    % cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/sim_results/constrained/
     fileName = [ 'output_may_16_constrained_sequential_initial_rep_' num2str(rep) ]; 
     dataStruct.(fileName) =  load( [ fileName '.txt' ]);
     dat = sortrows(dataStruct.(fileName) , 1); % sort the result by first column
@@ -36,7 +39,7 @@ for rep = 1:REP
     nuList = dat.nu; % constraint value on secondary value 
     
     %% generate train dataset 
-    cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/scripts/sim/
+    % cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/scripts/sim/
     which_reward_pos = 1; % positive reward
     which_reward_neg = -1; % negative reward
     sign = 1; % original function value 
@@ -52,7 +55,7 @@ for rep = 1:REP
         toc;
     end
     % unconstrained part
-    cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/sim_results/unconstrained/
+    % cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/sim_results/unconstrained/
     fileName2 = [ 'output_may_16_unconstrained_rep_' num2str(rep) ]; 
     dataStruct2.(fileName2) =  load( [ fileName2 '.txt' ]);
     dat2 = dataStruct2.(fileName2);
@@ -116,7 +119,7 @@ lower_ci_tau = mean_tau - 1.96 * std_tau / sqrt(REP);
 ci_tau_tab= horzcat( nuList, mean_test_pos_val', std_test_pos_val', ...
                  mean_test_neg_val', std_test_neg_val', mean_std_tau);
              
-cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/plot_results/
+cd ./plot_results/
 % plot
 width=10;
 height=16;

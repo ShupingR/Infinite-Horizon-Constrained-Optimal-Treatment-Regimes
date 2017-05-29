@@ -1,6 +1,8 @@
 %-----------------
 % efficient plot 
 %-----------------
+curr_folder = pwd;
+addpath(genpath(curr_folder))
 %% load data
 REP = 300;
 test_pos_val_mat = nan(REP, 20);
@@ -13,7 +15,7 @@ min_objective_mat = nan(REP, 20);
 max_objective_mat = nan(REP, 20);
 
 % test samples
-cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/scripts/sim/
+% cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/scripts/sim/
 K = 4; % number of radial basis functions, not include the intercept
 L = 5; % number of dosage levels
 N = 7000; % training set sample size
@@ -26,7 +28,7 @@ test_sample = sample_collect(N, T, K, test_seed); % generate training set
 
 for rep = 1:REP
     % constrained par
-    cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/sim_results/constrained/
+    % cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/sim_results/constrained/
     fileName = [ 'output_may_16_constrained_sequential_initial_rep_' num2str(rep) ]; 
     dataStruct.(fileName) =  load( [ fileName '.txt' ]);
     dat = sortrows(dataStruct.(fileName) , 1); % sort the result by first column
@@ -36,7 +38,7 @@ for rep = 1:REP
     tauTab = [ dat.tau0, dat.tau1, dat.tau2, dat.tau3, dat.tau4, dat.tau5 ];
     nuList = dat.nu; % constraint value on secondary value 
 
-    cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/scripts/sim/
+    % cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/scripts/sim/
     which_reward_pos = 1; % positive reward
     which_reward_neg = -1; % negative reward
     sign = 1; % original function value 
@@ -51,11 +53,11 @@ for rep = 1:REP
         toc;
     end
     % unconstrained part
-    cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/sim_results/unconstrained/
+    % cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/sim_results/unconstrained/
     fileName2 = [ 'output_may_16_unconstrained_rep_' num2str(rep) ]; 
     dataStruct2.(fileName2) =  load( [ fileName2 '.txt' ]);
     dat2 = dataStruct2.(fileName2);
-    cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/scripts/sim/
+    % cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/scripts/sim/
     % min constraint value
     min_constraint_tau = dat2(1, 4:9)';
     min_constraint = value_function(min_constraint_tau, test_sample, discount, K, L, which_reward_neg, sign);
@@ -75,7 +77,7 @@ for rep = 1:REP
 end
 
 %%
-cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/plot_results/
+cd ./plot_results/
 h = figure;
 % pos
 mean_test_pos_val = mean(test_pos_val_mat, 1);

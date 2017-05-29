@@ -3,9 +3,9 @@
 %  only plot for 1 mcmc rep to visualize the result               %
 %%----------------------------------------------------------------%%
 
-%% add path for files
-addpath(genpath('~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/'))
-
+%% add path 
+curr_folder = pwd;
+addpath(genpath(curr_folder))
 %% load data
 % test samples
 
@@ -93,7 +93,7 @@ for rep = 1:REP
             end
         end
 
-        cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/plot_results/
+        cd ./plot_results/
         % plot for Q+(s,a)
         h_1 = figure; 
         view(3)
