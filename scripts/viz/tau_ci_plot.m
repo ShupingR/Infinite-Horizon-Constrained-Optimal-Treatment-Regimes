@@ -1,4 +1,8 @@
+%-------------------------------------
+% plot for tau confidence interval
+%-------------------------------------
 %% load data
+cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/scripts/sim/
 REP = 2;
 test_pos_val_mat = nan(REP, 20);
 test_neg_val_mat = nan(REP, 20);
@@ -21,7 +25,7 @@ test_sample = sample_collect(N, T, K, test_seed); % generate training set
 
 for rep = 1:REP
     % constrained par
-    cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/results/may_24/constrained/
+    cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/sim_results/constrained/
     fileName = [ 'output_may_16_constrained_sequential_initial_rep_' num2str(rep) ]; 
     dataStruct.(fileName) =  load( [ fileName '.txt' ]);
     dat = sortrows(dataStruct.(fileName) , 1); % sort the result by first column
@@ -32,7 +36,7 @@ for rep = 1:REP
     nuList = dat.nu; % constraint value on secondary value 
     
     %% generate train dataset 
-    cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/
+    cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/scripts/sim/
     which_reward_pos = 1; % positive reward
     which_reward_neg = -1; % negative reward
     sign = 1; % original function value 
@@ -48,7 +52,7 @@ for rep = 1:REP
         toc;
     end
     % unconstrained part
-    cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/results/may_24/unconstrained/
+    cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/sim_results/unconstrained/
     fileName2 = [ 'output_may_16_unconstrained_rep_' num2str(rep) ]; 
     dataStruct2.(fileName2) =  load( [ fileName2 '.txt' ]);
     dat2 = dataStruct2.(fileName2);
@@ -59,7 +63,6 @@ for rep = 1:REP
 end
 
 %%
-
 % pos
 mean_test_pos_val = mean(test_pos_val_mat, 1);
 std_test_pos_val = std(test_pos_val_mat);
@@ -113,7 +116,7 @@ lower_ci_tau = mean_tau - 1.96 * std_tau / sqrt(REP);
 ci_tau_tab= horzcat( nuList, mean_test_pos_val', std_test_pos_val', ...
                  mean_test_neg_val', std_test_neg_val', mean_std_tau);
              
-cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/results/
+cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/plot_results/
 % plot
 width=10;
 height=16;
@@ -123,8 +126,8 @@ figure('Units','inches', 'Position',[x0 y0 width height], 'PaperPositionMode','a
 % (x0,y0) = position of the lower left side of the figure
 
 for i = 1: 6
-    subplot(6,1,i)
-    errorbar(nuList, mean_tau(:,i), upper_ci_tau(:,i), lower_ci_tau(:,i), 'o');
+   subplot(6,1,i)
+   errorbar(nuList, mean_tau(:,i), upper_ci_tau(:,i), lower_ci_tau(:,i), 'o');
    str = sprintf('$$\\widehat{\\tau}_{\\nu,%d}$$',i);
    %text('Interpreter','latex','Position',[1 2],'String',str)
     % ylabel({'$\widehat{\tau}_{\nu,%d}$',i}, 'interpreter' ,'latex', 'FontSize',15 )
@@ -132,7 +135,7 @@ for i = 1: 6
    ylabel({txt}, 'interpreter' ,'latex', 'FontSize',15)
   % tex file
 end
-xlabel({'$\nu$ bounds on secondary potential outcome'}, 'interpreter' ,'latex', 'FontSize',15 )
+xlabel({'Constraints $\nu$'}, 'interpreter' ,'latex', 'FontSize',15 )
 % ylabel({'$\widehat{V}$ values of estimated constrained optimal regimes'},...
 %           'interpreter' ,'latex', 'FontSize',15 )
 currentFigure = gcf;
