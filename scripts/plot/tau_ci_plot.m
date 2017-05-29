@@ -2,7 +2,7 @@
 % plot for tau confidence interval
 %-------------------------------------
 %% add path 
-curr_folder = pwd;
+curr_folder = '~/thesis/may_29/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/';
 addpath(genpath(curr_folder))
 %% load data
 % cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/scripts/sim/

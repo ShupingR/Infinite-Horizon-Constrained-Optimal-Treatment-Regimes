@@ -2,7 +2,7 @@
 % summarize simulation results into tables
 %----------------------------------------------
 %% add path 
-curr_folder = pwd;
+curr_folder = '~/thesis/may_29/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/';
 addpath(genpath(curr_folder))
 
 %% load data

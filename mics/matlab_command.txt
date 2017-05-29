@@ -1,3 +1,6 @@
 #!/bin/bash
 nohup matlab -nodesktop -nosplash -r "my_test;quit;" &
-
+nohup matlab -nodesktop -nosplash -r “efficient_plot;quit;” &> efficient_plot.log
+nohup matlab -nodesktop -nosplash -r “state_plot;quit;” &> state_plot.out 
+nohup matlab -nodesktop -nosplash -r “tau_ci_plot;quit;” &> tau_ci_plot.out 
+nohup matlab -nodesktop -nosplash -r “testset_table;quit;” &> testset_table.out 
