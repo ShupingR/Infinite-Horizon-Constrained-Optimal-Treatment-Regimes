@@ -71,8 +71,7 @@ mean_std_tau(:,1:2:end) = mean_tau;
 mean_std_tau(:, 2:2:end) = std_tau;
 upper_ci_tau = mean_tau + 1.96 * std_tau / sqrt(REP);
 lower_ci_tau = mean_tau - 1.96 * std_tau / sqrt(REP);
-ci_tau_tab= horzcat( nuList, mean_test_pos_val', std_test_pos_val', ...
-                 mean_test_neg_val', std_test_neg_val', mean_std_tau);
+ci_tau_tab= horzcat( nuList, mean_std_tau);
              
 cd ~/Downloads
 % plot
@@ -109,4 +108,22 @@ set(gca, 'Units','normalized', ...
     % 'FontSize',15);
 print('tau_ci', '-dpdf', '-bestfit' ) ;
 
-quit force
+%  tau table
+result_filename = 'tau_tab.txt';
+dlmwrite(result_filename, result_tab , '-append');
+  % tex file
+result_tex = 'tau_tab.tex';
+FID = fopen(result_tex, 'w');
+fprintf(FID, '\\begin{tabular}{rrrrrrrrrrrrr}\\hline \n');
+fprintf(FID, ' $\\nu$ & $\\widehat{\\tau}_{\\nu,1}$ & $std_1$ & $\\widehat{\\tau}_{\\nu,2}$ & $std_2$ & $\\widehat{\\tau}_{\\nu,3}$ & $std_3$ & $\\widehat{\\tau}_{\\nu,4}$ & $std_4$ &  $\\widehat{\\tau}_{\\nu,5}$ & $std_5$ & $\\widehat{\\tau}_{\\nu,6}$ & $std_6$ \\\\ \\hline \n');
+printtab = result_tab;
+  for k=1:size(printtab,1)
+      printline = ci_tau_tab(k,:);
+      fprintf(FID, '%8.2f & %8.2f & %8.2f & %8.2f & %8.2f  & %8.2f & %8.2f \\\\ ', printline);
+      if k==size(printtab,1)
+          fprintf(FID, '\\hline ');
+      end
+      fprintf(FID, '\n');
+  end
+  fprintf(FID, '\\end{tabular}\n');
+  fclose(FID);
