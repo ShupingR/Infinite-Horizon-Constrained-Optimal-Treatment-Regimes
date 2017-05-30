@@ -1,10 +1,9 @@
 %-----------------
 % efficient plot 
 %-----------------
-curr_folder = '~/thesis/may_29/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/';
-addpath(genpath(curr_folder))
+addpath(genpath('/Users/shuping.ruan/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/'));
 %% load data
-REP = 300;
+REP = 1;
 test_pos_val_mat = nan(REP, 20);
 test_neg_val_mat = nan(REP, 20);
 pos_weight_mat = nan(REP, 20, 5*5);
@@ -77,7 +76,7 @@ for rep = 1:REP
 end
 
 %%
-cd ./plot_results/
+cd /Users/shuping.ruan/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/plot_results/
 h = figure;
 % pos
 mean_test_pos_val = mean(test_pos_val_mat, 1);
@@ -110,8 +109,8 @@ std_min_constraint = std(min_constraint_mat);
 upper_ci_min_constraint = mean_min_constraint + 1.96 * std_min_constraint / sqrt(REP);
 lower_ci_min_constraint = mean_min_constraint - 1.96 * std_min_constraint / sqrt(REP);
 % errorbar(nuList, mean_min_constraint, lower_ci_min_constraint, upper_ci_min_constraint, '--ro');
-hline = refline(0, mean_min_constraint(1));
-set(hline,'LineStyle',':', 'Color', 'b', 'LineWidth',1.5);
+%hline = refline(0, mean_min_constraint(1));
+%set(hline,'LineStyle',':', 'Color', 'b', 'LineWidth',1.5);
 
 % max constraint
 mean_max_constraint = mean(max_constraint_mat, 1);
@@ -119,8 +118,8 @@ std_max_constraint = std(max_constraint_mat);
 upper_ci_max_constraint = mean_max_constraint + 1.96 * std_max_constraint / sqrt(REP);
 lower_ci_max_constraint = mean_max_constraint - 1.96 * std_max_constraint / sqrt(REP);
 % errorbar(nuList, mean_max_constraint, lower_ci_max_constraint, upper_ci_max_constraint,'--ro');
-hline = refline(0, mean_max_constraint(1));
-set(hline,'LineStyle',':', 'Color', 'b', 'LineWidth',1.5);
+%hline = refline(0, mean_max_constraint(1));
+%set(hline,'LineStyle',':', 'Color', 'b', 'LineWidth',1.5);
 
 % min objective
 mean_min_objective = mean(min_objective_mat, 1);
@@ -128,8 +127,8 @@ std_min_objective = std(min_objective_mat);
 upper_ci_min_objective = mean_min_objective + 1.96 * std_min_objective / sqrt(REP);
 lower_ci_min_objective = mean_min_objective - 1.96 * std_min_objective / sqrt(REP);
 % errorbar(nuList, mean_min_objective, lower_ci_min_objective, upper_ci_min_objective,'--bo');
-hline = refline(0, mean_min_objective(1));
-set(hline,'LineStyle',':', 'Color', 'r','LineWidth',1.5);
+%hline = refline(0, mean_min_objective(1));
+%set(hline,'LineStyle',':', 'Color', 'r','LineWidth',1.5);
 
 % max objective
 mean_max_objective = mean(max_objective_mat, 1);
@@ -137,8 +136,8 @@ std_max_objective = std(mean_max_objective);
 upper_ci_max_objective = mean_max_objective + 1.96 * std_max_objective / sqrt(REP);
 lower_ci_max_objective = mean_max_objective - 1.96 * std_max_objective / sqrt(REP);
 % errorbar(nuList, mean_max_objective, lower_ci_max_objective, upper_ci_max_objective,'--bo');
-hline = refline(0, mean_max_objective(1));
-set(hline,'LineStyle',':', 'Color', 'r','LineWidth',1.5);
+%hline = refline(0, mean_max_objective(1));
+%set(hline,'LineStyle',':', 'Color', 'r','LineWidth',1.5);
 
 xlabel({'Constraints $\nu$ '}, ...
          'interpreter' ,'latex', 'FontSize',15 )
@@ -156,3 +155,4 @@ set(gca, 'Units','normalized', ...
 saveas(gca, 'plot');
 print('efficient_plot', '-dpdf', '-bestfit' ) ;
 % close(h);
+quit force

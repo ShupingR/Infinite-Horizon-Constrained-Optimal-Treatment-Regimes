@@ -2,8 +2,7 @@
 % summarize simulation results into tables
 %----------------------------------------------
 %% add path 
-curr_folder = '~/thesis/may_29/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/';
-addpath(genpath(curr_folder))
+addpath(genpath('~/thesis/may_29/'));
 
 %% load data
 REP = 300;
@@ -120,7 +119,7 @@ lower_ci_tau = mean_tau - 1.96 * std_tau / sqrt(REP);
 result_tab= horzcat( nuList, mean_test_pos_val', std_test_pos_val', ...
                  mean_test_neg_val', std_test_neg_val', mean_std_tau);
 
-cd ./plot_results/
+cd ~/thesis/may_29/plot_results/
 % regime value table
 result_filename = 'value_tab.txt';
 dlmwrite(result_filename, result_tab , '-append');
@@ -162,5 +161,5 @@ printtab = result_tab;
   fprintf(FID, '\\end{tabular}\n');
   fclose(FID);
 
-
+quit force
 

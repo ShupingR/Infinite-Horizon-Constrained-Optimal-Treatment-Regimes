@@ -4,8 +4,7 @@
 %%----------------------------------------------------------------%%
 
 %% add path 
-curr_folder = '~/thesis/may_29/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/';
-addpath(genpath(curr_folder))
+addpath(genpath('~/thesis/may_29/'));
 %% load data
 % test samples
 
@@ -93,7 +92,7 @@ for rep = 1:REP
             end
         end
 
-        cd ./plot_results/
+        cd ~/thesis/may_29/plot_results/
         % plot for Q+(s,a)
         h_1 = figure; 
         view(3)
