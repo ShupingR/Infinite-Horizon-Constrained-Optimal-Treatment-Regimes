@@ -1,9 +1,10 @@
 %-----------------
 % efficient plot 
 %-----------------
-addpath(genpath('/Users/shuping.ruan/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/'));
+% addpath(genpath('/Users/shuping.ruan/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/'));
+addpath(genpath('~/thesis/may_30/'));
 %% load data
-REP = 3;
+REP = 300;
 test_pos_val_mat = nan(REP, 20);
 test_neg_val_mat = nan(REP, 20);
 pos_weight_mat = nan(REP, 20, 5*5);
@@ -36,21 +37,27 @@ for rep = 1:REP
                                                   'tau0' 'tau1' 'tau2' 'tau3' 'tau4' 'tau5'};
     tauTab = [ dat.tau0, dat.tau1, dat.tau2, dat.tau3, dat.tau4, dat.tau5 ];
     nuList = dat.nu; % constraint value on secondary value 
-
+    
+    cd ~/thesis/may_30/plot_results/
     % cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/scripts/sim/
     which_reward_pos = 1; % positive reward
     which_reward_neg = -1; % negative reward
     sign = 1; % original function value 
     % plot pareto efficient frontier on test dataset
+    display(rep);
+    tic;
     for k = 1:length(nuList)
-        tic;
         tau = tauTab(k, :)';
         [ test_pos_val_mat(rep, k), pos_weight_mat(rep, k, :) ] = ...
             value_function(tau, test_sample, discount, K, L, which_reward_pos, sign);
         [ test_neg_val_mat(rep, k), neg_weight_mat(rep, k, :) ] = ...
             value_function(tau, test_sample, discount, K, L, which_reward_neg, sign);
-        toc;
     end
+    toc;
+    dlmwrite('test_pos_val_mat.txt', test_pos_val_mat(rep,:) , '-append');
+    dlmwrite('test_neg_val_mat.txt', test_neg_val_mat(rep,:) , '-append');
+    dlmwrite('pos_weight_mat.txt', pos_weight_mat(rep,:) , '-append');
+    dlmwrite('neg_weight_mat.txt', neg_weight_mat(rep,:) , '-append');
     % unconstrained part
     % cd ~/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/sim_results/unconstrained/
     fileName2 = [ 'output_may_16_unconstrained_rep_' num2str(rep) ]; 
@@ -61,22 +68,26 @@ for rep = 1:REP
     min_constraint_tau = dat2(1, 4:9)';
     min_constraint = value_function(min_constraint_tau, test_sample, discount, K, L, which_reward_neg, sign);
     min_constraint_mat(rep, :) = repmat(min_constraint, 1, length(nuList));
+    dlmwrite('min_constraint_mat.txt', min_constraint_mat(rep,:) , '-append');
     % max constraint value
     max_constraint_tau = dat2(2, 4:9)';
     max_constraint = value_function(max_constraint_tau, test_sample, discount, K, L, which_reward_neg, sign);
     max_constraint_mat(rep, :) = repmat(max_constraint, 1, length(nuList));
+    dlmwrite('max_constraint_mat.txt', max_constraint_mat(rep,:) , '-append');
     % min objective value
     min_objective_tau = dat2(3, 4:9)';
     min_objective = value_function(min_objective_tau, test_sample, discount, K, L, which_reward_pos, sign);
     min_objective_mat(rep, :) = repmat(min_objective, 1, length(nuList));
+    dlmwrite('min_objective_mat.txt', min_objective_mat(rep,:) , '-append');
     % max objective value
     max_objective_tau = dat2(4, 4:9)';
     max_objective = value_function(max_objective_tau, test_sample, discount, K, L, which_reward_pos, sign);
     max_objective_mat(rep, :) = repmat(max_objective, 1, length(nuList));
+    dlmwrite('max_objective_mat.txt', max_objective_mat(rep,:) , '-append');
 end
 
 %%
-cd /Users/shuping.ruan/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/plot_results/
+cd ~/thesis/may_30/plot_results/
 h = figure;
 % pos
 mean_test_pos_val = mean(test_pos_val_mat, 1);
