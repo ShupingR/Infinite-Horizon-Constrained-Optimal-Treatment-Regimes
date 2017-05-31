@@ -69,11 +69,10 @@ std_tau = std(tau_mat, 0, 3);
 mean_std_tau = nan(20, 12);
 mean_std_tau(:,1:2:end) = mean_tau;
 mean_std_tau(:, 2:2:end) = std_tau;
-upper_ci_tau = mean_tau + 1.96 * std_tau / sqrt(REP);
-lower_ci_tau = mean_tau - 1.96 * std_tau / sqrt(REP);
+err_tau = 1.96 * std_tau / sqrt(REP);
 ci_tau_tab= horzcat( nuList, mean_std_tau);
              
-cd ~/Downloads
+cd /Users/shuping.ruan/GitHub/research-github/Infinite-Horizon-Constrained-Optimal-Treatment-Regimes/plot_results/
 % plot
 width=10;
 height=16;
@@ -84,12 +83,32 @@ figure('Units','inches', 'Position',[x0 y0 width height], 'PaperPositionMode','a
 
 for i = 1: 6
    subplot(6,1,i)
-   errorbar(nuList, mean_tau(:,i), upper_ci_tau(:,i), lower_ci_tau(:,i), 'o');
+   errorbar(nuList, mean_tau(:,i), err_tau(:,i), err_tau(:,i), 'o');
    str = sprintf('$$\\widehat{\\tau}_{\\nu,%d}$$',i);
    %text('Interpreter','latex','Position',[1 2],'String',str)
     % ylabel({'$\widehat{\tau}_{\nu,%d}$',i}, 'interpreter' ,'latex', 'FontSize',15 )
-   txt = ['$\widehat{\tau}_{\nu},$', num2str(i)];
-   ylabel({txt}, 'interpreter' ,'latex', 'FontSize',15)
+   
+    switch i
+        case 1
+            txt = ['$\widehat{\tau}_{\nu},$', num2str(i)];
+            ylabel({'int'; txt}, 'interpreter' ,'latex', 'FontSize',15);
+        case 2
+            txt = ['$\widehat{\tau}_{\nu},$', num2str(i)];
+            ylabel({'$M$'; txt}, 'interpreter' ,'latex', 'FontSize',15);
+        case 3
+            txt = ['$\widehat{\tau}_{\nu},$', num2str(i)];
+            ylabel({'$M^2$'; txt}, 'interpreter' ,'latex', 'FontSize',15);
+        case 4
+            txt = ['$\widehat{\tau}_{\nu},$', num2str(i)]; 
+            ylabel({'$W$'; txt}, 'interpreter' ,'latex', 'FontSize',15);
+        case 5
+            txt = ['$\widehat{\tau}_{\nu},$', num2str(i)]; 
+            ylabel({'$W^2$'; txt}, 'interpreter' ,'latex', 'FontSize',15);
+        otherwise
+            txt = ['$\widehat{\tau}_{\nu},$', num2str(i)];
+            ylabel({'$M*W$'; txt}, 'interpreter' ,'latex', 'FontSize',15);
+    end
+   %ylabel({txt}, 'interpreter' ,'latex', 'FontSize',15)
   % tex file
 end
 xlabel({'Constraints $\nu$'}, 'interpreter' ,'latex', 'FontSize',15 )
@@ -110,20 +129,19 @@ print('tau_ci', '-dpdf', '-bestfit' ) ;
 
 %  tau table
 result_filename = 'tau_tab.txt';
-dlmwrite(result_filename, result_tab , '-append');
-  % tex file
+dlmwrite(result_filename, ci_tau_tab , '-append');
+ % tex file
 result_tex = 'tau_tab.tex';
 FID = fopen(result_tex, 'w');
 fprintf(FID, '\\begin{tabular}{rrrrrrrrrrrrr}\\hline \n');
 fprintf(FID, ' $\\nu$ & $\\widehat{\\tau}_{\\nu,1}$ & $std_1$ & $\\widehat{\\tau}_{\\nu,2}$ & $std_2$ & $\\widehat{\\tau}_{\\nu,3}$ & $std_3$ & $\\widehat{\\tau}_{\\nu,4}$ & $std_4$ &  $\\widehat{\\tau}_{\\nu,5}$ & $std_5$ & $\\widehat{\\tau}_{\\nu,6}$ & $std_6$ \\\\ \\hline \n');
-printtab = result_tab;
-  for k=1:size(printtab,1)
-      printline = ci_tau_tab(k,:);
-      fprintf(FID, '%8.2f & %8.2f & %8.2f & %8.2f & %8.2f  & %8.2f & %8.2f \\\\ ', printline);
-      if k==size(printtab,1)
-          fprintf(FID, '\\hline ');
-      end
-      fprintf(FID, '\n');
-  end
-  fprintf(FID, '\\end{tabular}\n');
-  fclose(FID);
+for k=1:size(ci_tau_tab,1)
+    printline = ci_tau_tab(k,:);
+    fprintf(FID, '%8.2f & %8.2f & %8.2f & %8.2f & %8.2f  & %8.2f & %8.2f & %8.2f & %8.2f & %8.2f & %8.2f  & %8.2f & %8.2f \\\\ ', printline);
+    if k==size(ci_tau_tab,1)
+        fprintf(FID, '\\hline ');
+    end
+    fprintf(FID, '\n');
+end
+ fprintf(FID, '\\end{tabular}\n');
+ fclose(FID);
