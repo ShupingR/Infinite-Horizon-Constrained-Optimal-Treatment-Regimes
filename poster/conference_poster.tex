@@ -20,7 +20,6 @@
 %----------------------------------------------------------------------------------------
 
 \documentclass[final,hyperref={pdfpagelabels=false}]{beamer}
-
 %\usepackage{rldmsubmit,palatino}
 \usepackage{graphicx}
 \usepackage{color}
@@ -95,7 +94,8 @@
 \usepackage{subfig}    % composite figures
 
 % original packages
-\usepackage[orientation=portrait,size=a0,scale=1.4]{beamerposter} % Use the beamerposter package for laying out the poster with a portrait orientation and an a0 paper size
+%\usepackage[orientation=portrait,size=a0,scale=1.4]{beamerposter} % Use the beamerposter package for laying out the poster with a portrait orientation and an a0 paper size
+\usepackage[size=custom,width=91,height=121,scale=1.4,orientation=portrait]{beamerposter} 
 
 \usetheme{I6pd2} % Use the I6pd2 theme supplied with this template
 
@@ -154,9 +154,9 @@
 	\begin{itemize}
 		\item Dynamic treatment regimes (DTRs) are sequential decision making problems in precision medicine.
 		\item Most of the current methods for constructing DTRs focus on optimizing a single utility function over a finite number of decision time points (finite horizon).
-		\item However, clinical situations often, in practice, require considering the trade-off among multiple competing outcomes without a priori fixed end of follow-up point (infinite horizon). 
+		\item However, clinical situations often, in practice, require considering the trade-off among multiple competing outcomes without a priori fixed end of follow-up time point (infinite horizon). 
 		\item  Hence, we develop a method of estimating constrained optimal dynamic treatment regimes in chronic diseases where patients are monitored and treated throughout their life. 
-		\item  Our method is demonstrated through a simulated cancer trial dataset based on a chemotherapy mathematical model.
+		\item  Our method is demonstrated through a simulated cancer randomized clinical trial dataset based on a chemotherapy mathematical model.
 	\end{itemize}
 \end{block}
 
