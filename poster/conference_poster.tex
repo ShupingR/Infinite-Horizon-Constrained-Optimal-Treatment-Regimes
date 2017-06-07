@@ -155,8 +155,8 @@
 		\item Dynamic treatment regimes (DTRs) are sequential decision making problems in precision medicine.
 		\item Most of the current methods for constructing DTRs focus on optimizing a single utility function over a finite number of decision time points (finite horizon).
 		\item However, clinical situations often, in practice, require considering the trade-off among multiple competing outcomes without a priori fixed end of follow-up time point (infinite horizon). 
-		\item  Hence, we develop a method of estimating constrained optimal dynamic treatment regimes in chronic diseases where patients are monitored and treated throughout their life. 
-		\item  Our method is demonstrated through a simulated cancer randomized clinical trial dataset based on a chemotherapy mathematical model.
+		\item  Hence, we develop a method of estimating constrained optimal dynamic treatment regimes in chronic diseases where patients are monitored and treated throughout life. 
+		\item  Our method is demonstrated through a simulated randomized clinical trial dataset based on a chemotherapy mathematical model for cancer.
 	\end{itemize}
 \end{block}
 
@@ -233,7 +233,7 @@ manageable computation complexity, a quadratic function is used for policy funct
 \item Treatment
 \begin{figure}
 \includegraphics[width=0.5\linewidth]{act_dark.jpg}
-\caption{Action for each state under a constraint bound. From left to right, up to botton, $\nu= 10, 17, 24, 31$. Yellow is a high dose treatment, and blue is low dose treatment.}
+\caption{Action for each state under a constraint bound. From left to right, top to bottom, $\nu= 10, 17, 24, 31$. Yellow is a high dose treatment, and blue is low dose treatment.}
 \end{figure}
 \end{itemize}     
 \end{block}
@@ -247,7 +247,7 @@ manageable computation complexity, a quadratic function is used for policy funct
 
 \begin{itemize}
 \item We developed a method for constructing infinite-stage constrained optimal treatment regime using LSQ and interior point method.
-\item Our method is suitable for batch off-line learning, due to the combination of LSQ and policy  approximation.
+\item Our method is suitable for batch off-line learning, due to the combination of LSQ and policy function approximation.
 \item Our work is a foray to the practical use of dynamic treatment regimes in the real world applications, where handling multiple objectives in life-long clinical situation is inevitable.
 \end{itemize}
 \end{block}
