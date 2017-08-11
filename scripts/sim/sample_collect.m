@@ -20,10 +20,10 @@ function sample = sample_collect(N, T, K, seed)
     
     %% ode modeling for tumor size and patient wellness (negative/toxicity)
     % params set
-    a1 = 0.1;
-    a2 = 0.15;
-    b1 = 1.2;
-    b2 = 1.2;
+    a1 = 0.1; # a1->b1
+    a2 = 0.15; #a2->b2
+    b1 = 1.2;  #b1->c1
+    b2 = 1.2; #b2->c2
     d1 = 0.5;
     d2 = 0.5;
 
