@@ -34,7 +34,7 @@ function sample = sample_collect(N, T, K, seed)
     % Create Matrix of W M D
     W = nan(N, T); % state_neg
     M = nan(N, T); % state_pos
-    D = nan(N, T-1);
+    D = nan(N, T-1); % D is A , dosage = action
     
     % The initial values W1 (W0) and M1 (M0) for each patient are generated 
     % iid from uniform (0, 2). 
